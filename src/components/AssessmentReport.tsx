@@ -25,6 +25,7 @@ interface SkillScore {
     score: number;
 }
 
+
 interface RadarData {
     subject: string;
     A: number;
