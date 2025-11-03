@@ -2,7 +2,7 @@
  * Dashboard Page
  * Main dashboard showing organizational health overview with real-time metrics
  */
-import { useUser } from "../context/UserContext";
+import { useUser } from "../../context/UserContext";
 import { motion } from "framer-motion";
 import { Users, CheckCircle2, TrendingUp, BarChart3 } from "lucide-react";
 import {
@@ -10,12 +10,12 @@ import {
   StageDistributionChart,
   RecentActivityList,
   DepartmentHealthGrid,
-} from "../components/dashboard";
+} from "../../components/dashboard";
 import {
   MOCK_ORG_METRICS,
   MOCK_RECENT_ACTIVITIES,
   MOCK_DEPARTMENTS,
-} from "../data/mockAnalytics";
+} from "../../data/mockAnalytics";
 
 const Dashboard = () => {
   const { user } = useUser();

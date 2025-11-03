@@ -8,7 +8,7 @@ import { AssessmentProvider } from "./context/AssessmentContext";
 import { SidebarProvider } from "./context/SidebarContext";
 import Layout from "./components/layout/Layout";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Assessment/AssessmentDashboard";
 import Assessment from "./pages/Assessment/Assessment";
 import AssessmentQuestions from "./pages/Assessment/AssessmentQuestions";
 import Analytics from "./pages/Analytics";
