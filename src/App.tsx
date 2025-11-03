@@ -10,9 +10,9 @@ import Layout from "./components/layout/Layout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Assessment from "./pages/Assessment/Assessment";
-import AssessmentQuestions from "./pages/AssessmentQuestions";
+import AssessmentQuestions from "./pages/Assessment/AssessmentQuestions";
 import Analytics from "./pages/Analytics";
-import AssessmentReport from "./pages/AssessmentReport";
+import AssessmentReport from "./pages/Assessment/AssessmentReport";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

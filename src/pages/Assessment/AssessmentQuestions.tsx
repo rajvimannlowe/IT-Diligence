@@ -6,9 +6,9 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAssessment } from "../context/AssessmentContext";
-import { useUser } from "../context/UserContext";
-import { Button, Card, CardContent } from "../components/ui";
+import { useAssessment } from "../../context/AssessmentContext";
+import { useUser } from "../../context/UserContext";
+import { Button, Card, CardContent } from "../../components/ui";
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,9 +22,9 @@ import {
   Target,
   ArrowLeft,
 } from "lucide-react";
-import { STAGES } from "../data/stages";
-import { cn } from "../utils/cn";
-import type { StageType } from "../types";
+import { STAGES } from "../../data/stages";
+import { cn } from "../../utils/cn";
+import type { StageType } from "../../types";
 
 // Success Modal Component
 const SuccessModal = ({
