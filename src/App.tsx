@@ -8,7 +8,7 @@ import { AssessmentProvider } from "./context/AssessmentContext";
 import { SidebarProvider } from "./context/SidebarContext";
 import Layout from "./components/layout/Layout";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Assessment/AssessmentDashboard";
 import Assessment from "./pages/Assessment/Assessment";
 import AssessmentQuestions from "./pages/Assessment/AssessmentQuestions";
 import Analytics from "./pages/Analytics";
@@ -73,7 +73,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/assessment-dashboard" element={<Dashboard />} />
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/assessment/questions" element={<AssessmentQuestions />} />
         <Route path="/analytics" element={<Analytics />} />
@@ -85,10 +85,16 @@ function AppRoutes() {
       </Route>
 
       {/* Redirect root to dashboard or login */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route
+        path="/"
+        element={<Navigate to="/assessment-dashboard" replace />}
+      />
 
       {/* 404 fallback */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route
+        path="*"
+        element={<Navigate to="/assessment-dashboard" replace />}
+      />
     </Routes>
   );
 }

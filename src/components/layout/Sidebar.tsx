@@ -20,6 +20,7 @@ import {
   UserCog,
   Shield,
   Crown,
+  LayoutDashboard,
 } from "lucide-react";
 import { useUser } from "../../context/UserContext";
 import { useSidebar } from "../../context/SidebarContext";
@@ -33,12 +34,12 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  // {
-  //   id: "dashboard",
-  //   label: "Dashboard",
-  //   path: "/dashboard",
-  //   icon: <LayoutDashboard className="h-5 w-5" />,
-  // },
+  {
+    id: "assessment-dashboard",
+    label: "Dashboard",
+    path: "/assessment-dashboard",
+    icon: <LayoutDashboard className="h-5 w-5" />,
+  },
   {
     id: "assessment",
     label: "Assessment",
