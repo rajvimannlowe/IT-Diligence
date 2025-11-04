@@ -19,10 +19,8 @@ const Layout = () => {
         }`}
       >
         <Navbar />
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto p-6 max-w-7xl">
-            <Outlet />
-          </div>
+        <main className="flex-1 overflow-hidden relative">
+          <Outlet />
         </main>
       </div>
     </div>
