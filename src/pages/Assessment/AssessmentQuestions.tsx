@@ -262,8 +262,8 @@ const AssessmentQuestions = () => {
     return `chaturvima_assessment_page_${emailKey}`;
   }, [user]);
 
-  // Optimize for 80+ questions: show 5 questions per page
-  const [questionsPerPage] = useState(5);
+  // Show 1 question at a time for better focus
+  const [questionsPerPage] = useState(1);
   // Load saved page from localStorage
   const loadSavedPage = useCallback(() => {
     try {
@@ -303,6 +303,18 @@ const AssessmentQuestions = () => {
     const end = start + questionsPerPage;
     return questions.slice(start, end);
   }, [questions, currentPage, questionsPerPage]);
+
+  // Check if all questions on current page have the same options
+  const sharedOptions = useMemo(() => {
+    if (currentPageQuestions.length === 0) return null;
+
+    const firstQuestionOptions = currentPageQuestions[0].options;
+    const allSame = currentPageQuestions.every(
+      (q) => JSON.stringify(q.options) === JSON.stringify(firstQuestionOptions)
+    );
+
+    return allSame ? firstQuestionOptions : null;
+  }, [currentPageQuestions]);
 
   const allAnswered = Object.keys(answers).length === questions.length;
   const answeredCount = Object.keys(answers).length;
@@ -391,7 +403,7 @@ const AssessmentQuestions = () => {
   };
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -427,271 +439,201 @@ const AssessmentQuestions = () => {
             {/* Main Questions Area */}
             <div className="lg:col-span-2 flex flex-col overflow-hidden min-w-0">
               {/* Fixed Header Section */}
-              <div className="flex-shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4 relative z-10">
+              <div className="shrink-0 space-y-3 pb-4 mb-4">
                 {/* Back Button */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  whileHover={{ x: -4 }}
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/assessment")}
+                  className="cursor-pointer text-xs py-1.5 h-auto"
+                  size="sm"
                 >
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate("/assessment")}
-                    className="cursor-pointer group"
-                  >
-                    <motion.span
-                      animate={{ x: [0, -3, 0] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        repeatDelay: 2,
-                      }}
-                    >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                    </motion.span>
-                    Back to Assessment
-                  </Button>
-                </motion.div>
+                  <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                  Back to Assessment
+                </Button>
 
                 {/* Minimal Header */}
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-4"
                 >
-                  <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
                     Assessment Questions
                   </h1>
                 </motion.div>
               </div>
 
-              {/* Scrollable Questions List */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 sm:pr-2 custom-scrollbar space-y-4 sm:space-y-6 min-h-0">
-                <AnimatePresence mode="wait">
-                  {currentPageQuestions.map((question, idx) => {
-                    const questionNumber =
-                      currentPage * questionsPerPage + idx + 1;
-                    const selectedAnswer = answers[question.id];
+              {/* Question Content Area - No Scroll, Only Question Changes */}
+              <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex flex-col justify-start py-2">
+                  <AnimatePresence mode="wait">
+                    {currentPageQuestions.map((question, idx) => {
+                      const questionNumber =
+                        currentPage * questionsPerPage + idx + 1;
+                      const selectedAnswer = answers[question.id];
 
-                    return (
-                      <motion.div
-                        key={`${question.id}-${currentPage}`}
-                        initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                        animate={{
-                          opacity: 1,
-                          y: 0,
-                          scale: 1,
-                        }}
-                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                        transition={{
-                          delay: idx * 0.08,
-                          type: "spring",
-                          stiffness: 120,
-                          damping: 15,
-                        }}
-                        layout
-                        className="relative"
-                      >
+                      return (
                         <motion.div
-                          animate={
-                            selectedAnswer !== undefined
-                              ? {
-                                  boxShadow: [
-                                    "0 0 0 0px rgba(43, 198, 180, 0.4)",
-                                    "0 0 0 8px rgba(43, 198, 180, 0)",
-                                  ],
-                                }
-                              : {}
-                          }
-                          transition={{ duration: 0.6 }}
+                          key={`${question.id}-${currentPage}`}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="w-full"
                         >
-                          <div
-                            className={cn(
-                              "p-4 sm:p-5 rounded-lg border transition-all duration-300 relative overflow-hidden group",
-                              selectedAnswer !== undefined
-                                ? "border-brand-teal border-2 shadow-md"
-                                : "border-gray-200 hover:border-brand-teal/30 hover:shadow-sm"
-                            )}
-                          >
-                            {/* Animated border gradient for answered */}
-                            {selectedAnswer !== undefined && (
-                              <motion.div
-                                className="absolute inset-0 rounded-lg bg-gradient-to-r from-brand-teal/10 to-brand-navy/5"
-                                animate={{
-                                  opacity: [0.5, 0.8, 0.5],
-                                }}
-                                transition={{
-                                  duration: 3,
-                                  repeat: Infinity,
-                                }}
-                              />
-                            )}
-                            <div className="relative z-10">
-                              {/* Question Header */}
-                              <div className="flex items-start justify-between mb-4">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-xs font-medium text-gray-400">
-                                      Question {questionNumber} of{" "}
-                                      {questions.length}
-                                    </span>
-                                  </div>
-                                  <h3 className="text-base sm:text-lg font-medium text-gray-900 leading-relaxed">
-                                    {question.text}
-                                  </h3>
-                                  {question.description && (
-                                    <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-relaxed">
-                                      {question.description}
-                                    </p>
-                                  )}
-                                </div>
-                                <AnimatePresence>
-                                  {selectedAnswer !== undefined && (
-                                    <motion.div
-                                      initial={{ scale: 0, rotate: -180 }}
-                                      animate={{
-                                        scale: 1,
-                                        rotate: 0,
-                                        y: [0, -5, 0],
-                                      }}
-                                      exit={{ scale: 0, rotate: 180 }}
-                                      transition={{
-                                        rotate: {
-                                          type: "spring",
-                                          stiffness: 200,
-                                        },
-                                        y: {
-                                          duration: 2,
-                                          repeat: Infinity,
-                                          repeatType: "reverse",
-                                        },
-                                      }}
-                                      className="flex-shrink-0 ml-4 relative"
-                                    >
-                                      <motion.div
-                                        className="absolute inset-0 rounded-full bg-green-400/30 blur-md"
-                                        animate={{
-                                          scale: [1, 1.3, 1],
-                                          opacity: [0.5, 0, 0.5],
-                                        }}
-                                        transition={{
-                                          duration: 2,
-                                          repeat: Infinity,
-                                        }}
-                                      />
-                                      <div className="relative w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-md">
-                                        <Check className="h-4 w-4 text-white" />
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
+                          {/* Question Card */}
+                          <div className="w-full">
+                            {/* Question Header */}
+                            <div className="mb-4">
+                              <div className="mb-2">
+                                <span className="text-xs font-medium text-gray-500">
+                                  Question {questionNumber} of{" "}
+                                  {questions.length}
+                                </span>
                               </div>
+                              <h3 className="text-lg font-medium text-gray-900 leading-relaxed">
+                                {question.text}
+                              </h3>
+                              {question.description && (
+                                <p className="text-sm text-gray-500 mt-1.5">
+                                  {question.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
 
-                              {/* Options */}
-                              <div className="space-y-2 sm:space-y-2.5 mt-4 sm:mt-5">
-                                {question.options.map((option, optionIndex) => {
+                          {/* Answer Options - Below question */}
+                          {sharedOptions &&
+                          sharedOptions.length === 5 &&
+                          sharedOptions[0] === "Strongly Agree" &&
+                          sharedOptions[4] === "Strongly Disagree" ? (
+                            <div className="mt-4 w-full">
+                              <div className="flex items-center justify-between gap-2">
+                                {sharedOptions.map((option, optionIndex) => {
                                   const isSelected =
                                     selectedAnswer === optionIndex;
+
                                   return (
-                                    <motion.button
+                                    <button
                                       key={optionIndex}
                                       type="button"
-                                      onClick={() =>
+                                      onClick={() => {
                                         handleAnswerChange(
                                           question.id,
                                           optionIndex
-                                        )
-                                      }
-                                      whileHover={{
-                                        scale: 1.02,
-                                        x: 4,
-                                        boxShadow: isSelected
-                                          ? "0 4px 12px rgba(43, 198, 180, 0.2)"
-                                          : "0 4px 12px rgba(0, 0, 0, 0.08)",
+                                        );
                                       }}
-                                      whileTap={{ scale: 0.98 }}
                                       className={cn(
-                                        "w-full text-left p-3 sm:p-3.5 rounded-lg border-2 transition-all cursor-pointer relative overflow-hidden group/option",
+                                        "flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-lg border-2 transition-all cursor-pointer bg-white",
                                         isSelected
-                                          ? "border-brand-teal bg-brand-teal/10 shadow-sm"
-                                          : "border-gray-200 bg-white hover:border-brand-teal/50 hover:bg-gray-50"
+                                          ? "border-brand-teal bg-brand-teal/10"
+                                          : "border-gray-300 bg-white hover:border-brand-teal/50"
                                       )}
                                     >
-                                      {/* Ripple effect on click - only animate once */}
-                                      {isSelected && (
-                                        <motion.div
-                                          className="absolute inset-0 rounded-lg bg-brand-teal/20"
-                                          initial={{ scale: 0, opacity: 0.5 }}
-                                          animate={{ scale: 2, opacity: 0 }}
-                                          transition={{ duration: 0.6 }}
-                                        />
-                                      )}
-
-                                      {/* Static background for selected */}
-                                      {isSelected && (
-                                        <>
-                                          <div className="absolute inset-0 bg-gradient-to-r from-brand-teal/10 via-brand-navy/5 to-brand-teal/10" />
-                                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-brand-teal to-brand-navy" />
-                                        </>
-                                      )}
-                                      <div className="flex items-center gap-2.5 sm:gap-3 relative z-10">
-                                        <div
-                                          className={cn(
-                                            "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 relative transition-all",
-                                            isSelected
-                                              ? "border-brand-teal bg-brand-teal"
-                                              : "border-gray-300 group-hover/option:border-brand-teal/50"
-                                          )}
-                                        >
-                                          {isSelected && (
-                                            <motion.div
-                                              initial={{ scale: 0 }}
-                                              animate={{ scale: 1 }}
-                                              transition={{ duration: 0.3 }}
-                                              className="w-1.5 h-1.5 rounded-full bg-white"
-                                            />
-                                          )}
-                                        </div>
-                                        <span
-                                          className={cn(
-                                            "text-xs sm:text-sm font-normal leading-relaxed",
-                                            isSelected
-                                              ? "text-gray-900"
-                                              : "text-gray-700"
-                                          )}
-                                        >
-                                          {option}
-                                        </span>
+                                      {/* Simple circle indicator */}
+                                      <div
+                                        className={cn(
+                                          "w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                                          isSelected
+                                            ? "border-brand-teal bg-brand-teal"
+                                            : "border-gray-300"
+                                        )}
+                                      >
+                                        {isSelected ? (
+                                          <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                                        ) : (
+                                          <span className="text-[10px] font-semibold text-gray-400">
+                                            {optionIndex + 1}
+                                          </span>
+                                        )}
                                       </div>
-                                    </motion.button>
+
+                                      {/* Label */}
+                                      <span
+                                        className={cn(
+                                          "text-[10px] font-medium text-center leading-tight",
+                                          isSelected
+                                            ? "text-brand-teal font-semibold"
+                                            : "text-gray-600"
+                                        )}
+                                      >
+                                        {option}
+                                      </span>
+                                    </button>
                                   );
                                 })}
                               </div>
                             </div>
-                          </div>
+                          ) : (
+                            /* Fallback to vertical list for custom options */
+                            <div className="mt-4 w-full space-y-2">
+                              {question.options.map((option, optionIndex) => {
+                                const isSelected =
+                                  selectedAnswer === optionIndex;
+                                return (
+                                  <button
+                                    key={optionIndex}
+                                    type="button"
+                                    onClick={() =>
+                                      handleAnswerChange(
+                                        question.id,
+                                        optionIndex
+                                      )
+                                    }
+                                    className={cn(
+                                      "w-full text-left p-3 rounded-lg border-2 transition-all cursor-pointer bg-white",
+                                      isSelected
+                                        ? "border-brand-teal bg-brand-teal/10"
+                                        : "border-gray-300 bg-white hover:border-brand-teal/50"
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div
+                                        className={cn(
+                                          "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
+                                          isSelected
+                                            ? "border-brand-teal bg-brand-teal"
+                                            : "border-gray-300"
+                                        )}
+                                      >
+                                        {isSelected && (
+                                          <div className="w-2 h-2 rounded-full bg-white" />
+                                        )}
+                                      </div>
+                                      <span
+                                        className={cn(
+                                          "text-sm font-medium",
+                                          isSelected
+                                            ? "text-gray-900"
+                                            : "text-gray-700"
+                                        )}
+                                      >
+                                        {option}
+                                      </span>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </motion.div>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
               </div>
 
               {/* Fixed Navigation */}
-              <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200 mt-4">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+              <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 sm:gap-4 pt-3 border-t border-gray-200 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 0}
+                  className="cursor-pointer text-xs py-1.5 h-auto"
+                  size="sm"
                 >
-                  <Button
-                    variant="outline"
-                    onClick={handlePreviousPage}
-                    disabled={currentPage === 0}
-                    className="cursor-pointer"
-                  >
-                    <ChevronLeft className="mr-2 h-4 w-4" />
-                    Previous
-                  </Button>
-                </motion.div>
+                  <ChevronLeft className="mr-1.5 h-3.5 w-3.5" />
+                  Previous
+                </Button>
 
                 <div className="flex items-center gap-1">
                   {getPaginationButtons().map((pageIdx, idx) => {
@@ -762,78 +704,39 @@ const AssessmentQuestions = () => {
                 </div>
 
                 {currentPage === totalPages - 1 ? (
-                  <motion.div
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative"
-                  >
-                    {allAnswered && (
-                      <motion.div
-                        className="absolute -inset-1 bg-brand-teal/30 rounded-lg blur-xl"
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          opacity: [0.5, 0.8, 0.5],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                        }}
-                      />
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!allAnswered}
+                    className={cn(
+                      "cursor-pointer text-xs py-1.5 h-auto",
+                      allAnswered
+                        ? "bg-gradient-to-r from-brand-teal to-brand-navy"
+                        : "bg-gray-300 cursor-not-allowed"
                     )}
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={!allAnswered}
-                      className={cn(
-                        "cursor-pointer relative shadow-lg transition-all",
-                        allAnswered
-                          ? "bg-gradient-to-r from-brand-teal to-brand-navy hover:from-brand-teal/90 hover:to-brand-navy/90"
-                          : "bg-gray-300 cursor-not-allowed"
-                      )}
-                    >
-                      {allAnswered ? (
-                        <>
-                          <motion.span
-                            animate={{ rotate: [0, 15, -15, 0] }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              repeatDelay: 1,
-                            }}
-                          >
-                            <Send className="mr-2 h-4 w-4" />
-                          </motion.span>
-                          Submit Assessment
-                        </>
-                      ) : (
-                        <>
-                          <AlertCircle className="mr-2 h-4 w-4" />
-                          Answer All Questions
-                        </>
-                      )}
-                    </Button>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    whileHover={{ scale: 1.05, x: 4 }}
-                    whileTap={{ scale: 0.95 }}
+                    size="sm"
                   >
-                    <Button
-                      onClick={handleNextPage}
-                      disabled={currentPage === totalPages - 1}
-                      className="cursor-pointer"
-                    >
-                      Next
-                      <motion.span
-                        animate={{ x: [0, 3, 0] }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                        }}
-                      >
-                        <ChevronRight className="ml-2 h-4 w-4" />
-                      </motion.span>
-                    </Button>
-                  </motion.div>
+                    {allAnswered ? (
+                      <>
+                        <Send className="mr-1.5 h-3.5 w-3.5" />
+                        Submit Assessment
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
+                        Answer All Questions
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages - 1}
+                    className="cursor-pointer text-xs py-1.5 h-auto"
+                    size="sm"
+                  >
+                    Next
+                    <ChevronRight className="ml-1.5 h-3.5 w-3.5" />
+                  </Button>
                 )}
               </div>
             </div>
@@ -956,15 +859,14 @@ const AssessmentQuestions = () => {
                                   );
                                 }
                               }}
-                              whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               className={cn(
                                 "w-full aspect-square rounded-lg border-2 transition-all cursor-pointer flex items-center justify-center text-[10px] sm:text-xs font-medium",
                                 isAnswered
-                                  ? "bg-green-50 border-green-300 text-green-700 hover:bg-green-100 shadow-sm"
+                                  ? "border-green-300 text-green-700"
                                   : isCurrent
-                                  ? "bg-brand-teal/10 border-brand-teal text-brand-teal hover:bg-brand-teal/20 shadow-sm"
-                                  : "bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100"
+                                  ? "border-brand-teal text-brand-teal bg-brand-teal/5"
+                                  : "border-gray-200 text-gray-500"
                               )}
                               title={`Question ${
                                 idx + 1
@@ -988,7 +890,7 @@ const AssessmentQuestions = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 p-3 border border-green-200 shadow-lg"
+                    className="rounded-lg p-3 border border-green-200"
                   >
                     <div className="flex items-center gap-3">
                       <motion.div
