@@ -6,12 +6,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../utils/cn";
 import {
-  // LayoutDashboard,
   FileText,
-  // BarChart3,
-  Users,
-  Building2,
-  TrendingUp,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -46,36 +41,6 @@ const NAV_ITEMS: NavItem[] = [
     path: "/assessment",
     icon: <FileText className="h-5 w-5" />,
   },
-  // {
-  //   id: "analytics",
-  //   label: "Analytics",
-  //   path: "/analytics",
-  //   icon: <BarChart3 className="h-5 w-5" />,
-  // },
-  {
-    id: "team",
-    label: "Team View",
-    path: "/team",
-    icon: <Users className="h-5 w-5" />,
-  },
-  {
-    id: "organization",
-    label: "Organization",
-    path: "/organization",
-    icon: <Building2 className="h-5 w-5" />,
-  },
-  {
-    id: "journey",
-    label: "Journey Timeline",
-    path: "/journey",
-    icon: <TrendingUp className="h-5 w-5" />,
-  },
-  // {
-  //   id: "assessment-report",
-  //   label: "Assessment Report",
-  //   path: "/assessment-report",
-  //   icon: <FileText className="h-5 w-5" />,
-  // },
 ];
 
 const ROLE_CONFIG: Record<
@@ -114,7 +79,7 @@ const Sidebar = () => {
   return (
     <motion.aside
       initial={false}
-      animate={{ width: isCollapsed ? 80 : 280 }}
+      animate={{ width: isCollapsed ? 80 : 240 }}
       transition={{ duration: 0.3 }}
       className="fixed left-0 top-0 h-screen bg-white border-r border-gray-200 flex flex-col shadow-sm z-50"
     >

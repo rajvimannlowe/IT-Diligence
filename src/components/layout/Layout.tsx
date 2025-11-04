@@ -15,7 +15,7 @@ const Layout = () => {
       <Sidebar />
       <div
         className={`flex-1 transition-all duration-300 flex flex-col ${
-          isCollapsed ? "ml-[80px]" : "ml-[280px]"
+          isCollapsed ? "ml-[80px]" : "ml-[240px]"
         }`}
       >
         <Navbar />
