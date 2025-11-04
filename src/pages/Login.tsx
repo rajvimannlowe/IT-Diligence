@@ -124,7 +124,7 @@ const Login = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="relative flex h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -162,32 +162,22 @@ const Login = () => {
         className="relative z-10 w-full max-w-md"
       >
         {/* Logo and Title */}
-        <div className="mb-10 text-center">
+        <div className="mb-4 text-center">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex flex-col items-center"
           >
-            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-teal to-brand-navy shadow-lg">
-              <TrendingUp className="h-10 w-10 text-white" />
+            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-brand-teal to-brand-navy shadow-lg">
+              <TrendingUp className="h-8 w-8 text-white" />
             </div>
-            <h1 className="mb-3 bg-gradient-to-r from-brand-navy to-brand-teal bg-clip-text text-5xl font-bold text-transparent">
+            <h1 className="mb-1 bg-gradient-to-r from-brand-navy to-brand-teal bg-clip-text text-3xl font-bold text-transparent">
               ChaturVima
             </h1>
-            <p className="mb-3 text-lg font-medium text-gray-700">
+            <p className="text-sm font-medium text-gray-600">
               Organizational Health Diagnostics
             </p>
-            <div className="flex items-center justify-center gap-5 text-sm text-gray-600">
-              <div className="flex items-center gap-1.5">
-                <Shield className="h-4 w-4" />
-                <span>Secure</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Users className="h-4 w-4" />
-                <span>Trusted</span>
-              </div>
-            </div>
           </motion.div>
         </div>
 
@@ -196,17 +186,17 @@ const Login = () => {
           variant="elevated"
           className="backdrop-blur-sm bg-white/95 shadow-2xl"
         >
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-3xl mb-2">Welcome Back</CardTitle>
-            <CardDescription className="text-base">
-              Sign in to access your assessment dashboard
+          <CardHeader className="text-center pb-3">
+            <CardTitle className="text-xl mb-1">Welcome Back</CardTitle>
+            <CardDescription className="text-xs text-gray-500">
+              Sign in to access your dashboard
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 px-6 pb-6">
+          <CardContent className="space-y-4 px-6 pb-5">
             {/* Login Form */}
             <form
               onSubmit={handleSubmit}
-              className="space-y-5"
+              className="space-y-3"
               autoComplete="off"
             >
               {/* Email Input */}
@@ -232,18 +222,9 @@ const Login = () => {
 
               {/* Password Input */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowForgotPassword(true)}
-                    className="cursor-pointer text-sm font-medium text-brand-teal hover:text-brand-teal/80 transition-colors"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
+                <label className="text-sm font-medium text-gray-700">
+                  Password
+                </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                   <Input
@@ -267,6 +248,15 @@ const Login = () => {
                     ) : (
                       <Eye className="h-5 w-5" />
                     )}
+                  </button>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="cursor-pointer text-sm font-medium text-brand-teal hover:text-brand-teal/80 transition-colors"
+                  >
+                    Forgot password?
                   </button>
                 </div>
               </div>
@@ -302,9 +292,9 @@ const Login = () => {
               </motion.div>
 
               {/* Divider */}
-              <div className="relative flex items-center py-3">
+              <div className="relative flex items-center py-2">
                 <div className="grow border-t border-gray-300"></div>
-                <span className="mx-4 shrink text-sm text-gray-500">or</span>
+                <span className="mx-3 shrink text-xs text-gray-500">or</span>
                 <div className="grow border-t border-gray-300"></div>
               </div>
 
@@ -328,16 +318,6 @@ const Login = () => {
             </form>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-8 text-center text-sm text-gray-600"
-        >
-          Phase 0 - Mockup Application for Customer Discovery
-        </motion.p>
       </motion.div>
 
       {/* Forgot Password Modal */}
