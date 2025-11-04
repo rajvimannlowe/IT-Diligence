@@ -118,7 +118,7 @@ const Assessment = () => {
   // Not started state
   if (!hasStarted && !isComplete) {
     return (
-      <div className="max-w-5xl mx-auto py-8">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

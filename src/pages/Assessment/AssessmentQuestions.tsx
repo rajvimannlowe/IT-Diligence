@@ -658,7 +658,7 @@ const AssessmentQuestions = () => {
                                       }}
                                       whileTap={{ scale: 0.98 }}
                                       className={cn(
-                                        "w-full text-left p-3 rounded-lg border-2 transition-all cursor-pointer relative overflow-hidden group/option text-sm overflow-x-hidden",
+                                        "cursor-pointer w-full text-left p-3 rounded-lg border-2 transition-all relative overflow-hidden group/option text-sm overflow-x-hidden",
                                         isSelected
                                           ? "border-brand-teal bg-brand-teal/10 shadow-sm"
                                           : "border-gray-200 bg-white hover:border-brand-teal/50 hover:bg-gray-50"
@@ -797,7 +797,7 @@ const AssessmentQuestions = () => {
                         }}
                         whileTap={{ scale: 0.9 }}
                         className={cn(
-                          "w-8 h-8 rounded-lg text-xs font-medium transition-all cursor-pointer relative",
+                          "cursor-pointer w-8 h-8 rounded-lg text-xs font-medium transition-all relative",
                           isCurrentPage
                             ? "bg-brand-teal text-white shadow-md"
                             : "bg-gray-200 text-gray-600 hover:bg-gray-300"
@@ -981,7 +981,7 @@ const AssessmentQuestions = () => {
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               className={cn(
-                                "w-full aspect-square rounded-lg border-2 transition-all cursor-pointer flex items-center justify-center text-[10px] font-medium bg-white",
+                                "cursor-pointer w-full aspect-square rounded-lg border-2 transition-all flex items-center justify-center text-[10px] font-medium bg-white",
                                 isAnswered
                                   ? "border-green-300 text-green-700"
                                   : isCurrent

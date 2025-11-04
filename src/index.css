@@ -18,6 +18,7 @@
   --color-stages-steady-state-light: #ccfbf1;
   --color-stages-steady-state-dark: #134e4a;
 
+  /* Brand Colors - Update these values to change colors project-wide */
   --color-brand-navy: #1e3a5f;
   --color-brand-teal: #2bc6b4;
 
@@ -82,20 +83,30 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #2bc6b4, #1e3a5f);
+  /* Using CSS variables for dynamic colors - update in @theme section */
+  background: linear-gradient(
+    to bottom,
+    var(--color-brand-teal),
+    var(--color-brand-navy)
+  );
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #2bc6b4, #1e3a5f);
+  background: linear-gradient(
+    to bottom,
+    var(--color-brand-teal),
+    var(--color-brand-navy)
+  );
   box-shadow: 0 0 8px rgba(43, 198, 180, 0.4);
 }
 
 /* Firefox scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #2bc6b4 #f3f4f6;
+  /* Using CSS variables for dynamic colors - update in @theme section */
+  scrollbar-color: var(--color-brand-teal) #f3f4f6;
 }
 
 /* Stage shapes */

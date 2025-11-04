@@ -28,6 +28,7 @@ import {
   TrendingUp,
   Calendar,
 } from "lucide-react";
+import { colors } from "../../utils/colors";
 
 type Priority = "High" | "Medium" | "Low";
 
@@ -48,21 +49,21 @@ type CompletedAssessment = {
   percentile: number; // 0-100
 };
 
-// Brand colors - centralized for consistency
+// Brand colors - using centralized color system
 const brand = {
-  teal: "#0ea5a4",
-  tealDark: "#0b8584",
-  tealBrand: "#2BC6B4",
-  navyBrand: "#1E3A5F",
+  teal: colors.brand.tealLight,
+  tealDark: colors.brand.tealDark,
+  tealBrand: colors.brand.teal,
+  navyBrand: colors.brand.navy,
   purple: "#7c3aed",
   purpleLight: "#a78bfa",
-  sky: "#38bdf8",
-  slate700: "#334155",
-  slate500: "#64748b",
-  slate200: "#e2e8f0",
-  green: "#22c55e",
-  amber: "#f59e0b",
-  red: "#ef4444",
+  sky: colors.semantic.info,
+  slate700: colors.neutral.gray700,
+  slate500: colors.neutral.gray500,
+  slate200: colors.neutral.gray200,
+  green: colors.semantic.success,
+  amber: colors.semantic.warning,
+  red: colors.semantic.error,
 } as const;
 
 const SummaryCard = ({
@@ -522,7 +523,7 @@ const AssessmentDashboard = () => {
                   onClick={() => setRange(r)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                  className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                     range === r
                       ? "bg-gradient-to-r from-brand-teal to-brand-navy text-white border-transparent shadow-md"
                       : "bg-white text-gray-700 border-gray-200 hover:bg-gradient-to-r hover:from-brand-teal/10 hover:to-brand-navy/10 hover:border-brand-teal/30"
@@ -735,7 +736,7 @@ const AssessmentDashboard = () => {
                   onClick={() => setPriorityFilter(p)}
                   whileHover={{ scale: 1.08, y: -1 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`px-4 py-2 text-xs font-medium rounded-lg border transition-all ${buttonStyles[p]}`}
+                  className={`cursor-pointer px-4 py-2 text-xs font-medium rounded-lg border transition-all ${buttonStyles[p]}`}
                 >
                   {p}
                 </motion.button>
@@ -787,7 +788,7 @@ const AssessmentDashboard = () => {
                   <div className="flex shrink-0 items-center gap-3">
                     <motion.button
                       whileTap={{ scale: 0.97 }}
-                      className="relative inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-brand-teal to-brand-navy px-3 py-2 text-sm font-medium text-white hover:from-brand-teal/90 hover:to-brand-navy/90 shadow-lg overflow-hidden"
+                      className="cursor-pointer relative inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-brand-teal to-brand-navy px-3 py-2 text-sm font-medium text-white hover:from-brand-teal/90 hover:to-brand-navy/90 shadow-lg overflow-hidden"
                     >
                       <span
                         className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity"
@@ -953,7 +954,7 @@ const AssessmentDashboard = () => {
                         }}
                         whileHover={{ scale: 1.08, x: -3 }}
                         whileTap={{ scale: 0.95 }}
-                        className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-md border border-brand-teal/30 bg-gradient-to-r from-brand-teal/10 to-brand-navy/10 px-3 py-1.5 text-xs font-semibold text-brand-navy shadow-md transition-all hover:border-brand-teal/50 hover:from-brand-teal/15 hover:to-brand-navy/15 hover:shadow-lg"
+                        className="cursor-pointer group relative inline-flex items-center gap-1.5 overflow-hidden rounded-md border border-brand-teal/30 bg-gradient-to-r from-brand-teal/10 to-brand-navy/10 px-3 py-1.5 text-xs font-semibold text-brand-navy shadow-md transition-all hover:border-brand-teal/50 hover:from-brand-teal/15 hover:to-brand-navy/15 hover:shadow-lg"
                       >
                         {/* Shine effect on hover */}
                         <motion.span
