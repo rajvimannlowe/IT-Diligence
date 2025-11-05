@@ -8,16 +8,15 @@ import { AssessmentProvider } from "./context/AssessmentContext";
 import { SidebarProvider } from "./context/SidebarContext";
 import Layout from "./components/layout/Layout";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Assessment/AssessmentDashboard";
-import Assessment from "./pages/Assessment/Assessment";
-import AssessmentQuestions from "./pages/Assessment/AssessmentQuestions";
+import Dashboard from "./pages/Employee/Assessment/AssessmentDashboard";
+import Assessment from "./pages/Employee/Assessment/Assessment";
+import AssessmentQuestions from "./pages/Employee/Assessment/AssessmentQuestions";
 import Analytics from "./pages/Analytics";
-import AssessmentReport from "./pages/Assessment/AssessmentReport";
+import AssessmentReport from "./pages/Employee/Assessment/AssessmentReport";
 import OrganizationSetup from "./pages/superAdmin/OrganizationSetup";
 import EmployeeSetup from "./pages/superAdmin/EmployeeSetup";
 import DepartmentSetup from "./pages/superAdmin/DepartmentSetup";
 import SuperAdminDashboard from "./pages/superAdmin/SuperAdminDashboard";
-
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -90,7 +89,10 @@ function AppRoutes() {
         <Route path="/organization-setup" element={<OrganizationSetup />} />
         <Route path="/employee-setup" element={<EmployeeSetup />} />
         <Route path="/department-setup" element={<DepartmentSetup />} />
-        <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
+        <Route
+          path="/super-admin-dashboard"
+          element={<SuperAdminDashboard />}
+        />
       </Route>
 
       {/* Redirect root to dashboard or login */}

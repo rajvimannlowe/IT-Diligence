@@ -12,9 +12,9 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAssessment } from "../../context/AssessmentContext";
-import { useUser } from "../../context/UserContext";
-import { Button, Card, CardContent } from "../../components/ui";
+import { useAssessment } from "../../../context/AssessmentContext";
+import { useUser } from "../../../context/UserContext";
+import { Button, Card, CardContent } from "../../../components/ui";
 import {
   ChevronLeft,
   ChevronRight,
@@ -28,7 +28,7 @@ import {
   Target,
   ArrowLeft,
 } from "lucide-react";
-import { cn } from "../../utils/cn";
+import { cn } from "../../../utils/cn";
 
 // Success Modal Component
 const SuccessModal = ({
