@@ -458,9 +458,9 @@ const AssessmentQuestions = () => {
     <div className="absolute inset-0 overflow-hidden">
       <div className="relative z-10 h-full w-full overflow-hidden px-4 py-3 lg:px-6 lg:py-8">
         <div className="h-full overflow-hidden flex flex-col">
-          <div className="grid lg:grid-cols-3 gap-4 h-full min-h-0 flex-1 overflow-hidden">
+          <div className="grid lg:grid-cols-4 gap-4 h-full min-h-0 flex-1 overflow-hidden">
             {/* Main Questions Area */}
-            <div className="lg:col-span-2 flex flex-col h-full min-h-0 overflow-hidden">
+            <div className="lg:col-span-3 flex flex-col h-full min-h-0 overflow-hidden">
               <div className="flex-shrink-0 space-y-3 mb-4">
                 {/* Back Button */}
                 <Button
@@ -949,7 +949,7 @@ const AssessmentQuestions = () => {
                     </h3>
                     {/* Show approximately 20 questions visible, then scroll for more */}
                     <div className="max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
-                      <div className="grid grid-cols-5 gap-2">
+                      <div className="grid grid-cols-5 gap-1.5">
                         {questions.map((question, idx) => {
                           const isAnswered = answers[question.id] !== undefined;
                           const isCurrent =
@@ -957,7 +957,7 @@ const AssessmentQuestions = () => {
                             idx < (currentPage + 1) * questionsPerPage;
 
                           return (
-                            <motion.button
+                            <button
                               key={question.id}
                               onClick={() => {
                                 const targetPage = Math.floor(
@@ -978,26 +978,20 @@ const AssessmentQuestions = () => {
                                   );
                                 }
                               }}
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
                               className={cn(
-                                "cursor-pointer w-full aspect-square rounded-lg border-2 transition-all flex items-center justify-center text-[10px] font-medium bg-white",
+                                "cursor-pointer w-full h-10 rounded border-2 transition-all flex items-center justify-center text-xs font-medium",
                                 isAnswered
-                                  ? "border-green-300 text-green-700"
+                                  ? "border-green-500 bg-green-500 text-white"
                                   : isCurrent
-                                  ? "border-brand-teal text-brand-teal"
-                                  : "border-gray-300 text-gray-700"
+                                  ? "border-brand-teal text-brand-teal bg-white"
+                                  : "border-gray-300 text-gray-700 bg-white"
                               )}
                               title={`Question ${
                                 idx + 1
                               }: ${question.text.slice(0, 30)}...`}
                             >
-                              {isAnswered ? (
-                                <Check className="h-3 w-3" />
-                              ) : (
-                                <span>{idx + 1}</span>
-                              )}
-                            </motion.button>
+                              <span className="font-semibold">{idx + 1}</span>
+                            </button>
                           );
                         })}
                       </div>
