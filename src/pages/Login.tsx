@@ -233,7 +233,7 @@ const Login = () => {
                 )}
               </AnimatePresence>
 
-              {/* Sign In Button */}
+              {/* Sign In Button added*/}
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
