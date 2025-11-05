@@ -59,9 +59,9 @@ const NAV_ITEMS: NavItem[] = [
     roles: ["employee"],
   },
   {
-    id: "organizational-setup",
-    label: "Organizational Setup",
-    path: "/organizational-setup",
+    id: "organization-setup",
+    label: "Organization Setup",
+    path: "/organization-setup",
     icon: <FileText className="h-5 w-5" />,
     roles: ["super-admin"],
   },
@@ -84,7 +84,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "Department Setup",
     path: "/department-setup",
     icon: <FileText className="h-5 w-5" />,
-    roles: ["department-head", "hr-admin"],
+    roles: ["department-head", "hr-admin", "super-admin"],
   },
 ];
 
