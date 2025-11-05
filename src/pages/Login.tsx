@@ -253,7 +253,7 @@ const Login = () => {
         </Card>
       </motion.div>
 
-      {/* Forgot Password Modal */}
+      {/* Forgot Password Modal Implemented*/}
       <AnimatePresence>
         {showForgotPassword && (
           <motion.div
