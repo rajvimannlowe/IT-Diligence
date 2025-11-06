@@ -132,8 +132,9 @@ const Assessment = () => {
     setShowEnergyBreak(false);
   };
 
-  // Not started state
-  if (!hasStarted && !isComplete) {
+  // If assessment is submitted, always show welcome screen with disabled button
+  // Not started state (or submitted state - show welcome screen with disabled button)
+  if (isAssessmentSubmitted || (!hasStarted && !isComplete)) {
     return (
       <div className="max-w-5xl mx-auto">
         <motion.div
@@ -441,8 +442,9 @@ const Assessment = () => {
     );
   }
 
-  // Assessment complete state
-  if (isComplete && result) {
+  // If assessment is submitted, show welcome screen with disabled button (not results)
+  // Assessment complete state - only show results if not submitted
+  if (isComplete && result && !isAssessmentSubmitted) {
     return <AssessmentResults result={result} onRetake={handleRetake} />;
   }
 
