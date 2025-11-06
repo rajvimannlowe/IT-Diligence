@@ -11,8 +11,6 @@ import {
   Palette,
   Globe,
   KeyRound,
-  CreditCard,
-  HelpCircle,
   ChevronRight,
 } from "lucide-react";
 import {
@@ -38,7 +36,7 @@ const SETTINGS_OPTIONS: SettingsOption[] = [
     id: "profile",
     title: "Edit Profile",
     description: "Update your personal information and profile details",
-    icon: <User className="h-6 w-6" />,
+    icon: <User className="h-5 w-5" />,
     path: "/settings/edit-profile",
     color: "from-blue-500 to-blue-600",
   },
@@ -46,7 +44,7 @@ const SETTINGS_OPTIONS: SettingsOption[] = [
     id: "notifications",
     title: "Notifications",
     description: "Manage your notification preferences",
-    icon: <Bell className="h-6 w-6" />,
+    icon: <Bell className="h-5 w-5" />,
     path: "/settings/notifications",
     color: "from-purple-500 to-purple-600",
   },
@@ -54,7 +52,7 @@ const SETTINGS_OPTIONS: SettingsOption[] = [
     id: "security",
     title: "Security",
     description: "Change password and manage security settings",
-    icon: <Shield className="h-6 w-6" />,
+    icon: <Shield className="h-5 w-5" />,
     path: "/settings/security",
     color: "from-red-500 to-red-600",
   },
@@ -62,7 +60,7 @@ const SETTINGS_OPTIONS: SettingsOption[] = [
     id: "appearance",
     title: "Appearance",
     description: "Customize theme and display preferences",
-    icon: <Palette className="h-6 w-6" />,
+    icon: <Palette className="h-5 w-5" />,
     path: "/settings/appearance",
     color: "from-pink-500 to-pink-600",
   },
@@ -70,7 +68,7 @@ const SETTINGS_OPTIONS: SettingsOption[] = [
     id: "language",
     title: "Language & Region",
     description: "Set your language and regional preferences",
-    icon: <Globe className="h-6 w-6" />,
+    icon: <Globe className="h-5 w-5" />,
     path: "/settings/language",
     color: "from-green-500 to-green-600",
   },
@@ -78,7 +76,7 @@ const SETTINGS_OPTIONS: SettingsOption[] = [
     id: "privacy",
     title: "Privacy",
     description: "Control your privacy and data settings",
-    icon: <KeyRound className="h-6 w-6" />,
+    icon: <KeyRound className="h-5 w-5" />,
     path: "/settings/privacy",
     color: "from-indigo-500 to-indigo-600",
   },
@@ -88,53 +86,30 @@ const Settings = () => {
   const { user } = useUser();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-2 text-gray-600">
+        <div className="flex items-center gap-2">
+          <div className="h-1 w-1 rounded-full bg-brand-teal" />
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Settings
+          </h1>
+        </div>
+        <p className="mt-1 text-sm text-gray-600">
           Manage your account settings and preferences
         </p>
       </motion.div>
-
-      {/* User Info Card */}
-      {user && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <Card variant="elevated">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-teal to-brand-navy text-white text-2xl font-bold">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {user.name}
-                  </h2>
-                  <p className="text-sm text-gray-600">{user.email}</p>
-                  <span className="mt-2 inline-block rounded-full bg-brand-teal/10 px-3 py-1 text-xs font-medium text-brand-teal">
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
 
       {/* Settings Options Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+        className="grid gap-3 md:grid-cols-2 lg:grid-cols-3"
       >
         {SETTINGS_OPTIONS.map((option, index) => (
           <motion.div
@@ -142,65 +117,38 @@ const Settings = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 * (index + 1) }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <Link to={option.path}>
               <Card
                 variant="elevated"
-                className="group h-full cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]"
+                className="group h-full cursor-pointer transition-all duration-300 hover:shadow-xl border-l-4 border-l-transparent hover:border-l-brand-teal bg-white hover:bg-gray-50/50"
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${option.color} text-white shadow-md`}
-                      >
-                        {option.icon}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-brand-teal transition-colors">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${option.color} text-white shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300 shrink-0`}
+                    >
+                      {option.icon}
+                    </div>
+                    <div className="flex-1 min-w-0 flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm text-gray-900 group-hover:text-brand-teal transition-colors">
                           {option.title}
                         </h3>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <p className="mt-1 text-xs text-gray-600 line-clamp-2 leading-relaxed">
                           {option.description}
                         </p>
                       </div>
+                      <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-brand-teal group-hover:translate-x-1 transition-all duration-300 shrink-0 mt-0.5" />
                     </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-brand-teal transition-colors flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
             </Link>
           </motion.div>
         ))}
-      </motion.div>
-
-      {/* Additional Help Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4 }}
-      >
-        <Card variant="elevated">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <HelpCircle className="h-5 w-5 text-brand-teal" />
-              Need Help?
-            </CardTitle>
-            <CardDescription>
-              Contact support or view our documentation
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
-              <button className="text-sm font-medium text-brand-teal hover:text-brand-teal/80 transition-colors">
-                View Documentation
-              </button>
-              <button className="text-sm font-medium text-brand-teal hover:text-brand-teal/80 transition-colors">
-                Contact Support
-              </button>
-            </div>
-          </CardContent>
-        </Card>
       </motion.div>
     </div>
   );
