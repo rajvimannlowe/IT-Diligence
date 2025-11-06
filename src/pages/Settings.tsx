@@ -13,13 +13,7 @@ import {
   KeyRound,
   ChevronRight,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../components/ui";
+import { Card, CardContent } from "../components/ui";
 import { useUser } from "../context/UserContext";
 
 interface SettingsOption {
@@ -83,8 +77,6 @@ const SETTINGS_OPTIONS: SettingsOption[] = [
 ];
 
 const Settings = () => {
-  const { user } = useUser();
-
   return (
     <div className="space-y-4">
       {/* Header */}
