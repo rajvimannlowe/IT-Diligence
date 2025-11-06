@@ -13,7 +13,7 @@ import AssessmentProgress from "../../../components/assessment/AssessmentProgres
 import EnergyBreak from "../../../components/assessment/EnergyBreak";
 import AssessmentResults from "../../../components/assessment/AssessmentResults";
 import CelebrationConfetti from "../../../components/assessment/CelebrationConfetti";
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, Check } from "lucide-react";
 
 const Assessment = () => {
   const navigate = useNavigate();
@@ -56,6 +56,20 @@ const Assessment = () => {
     }
   }, [answers, user]);
 
+  // Check if assessment is already submitted
+  const isAssessmentSubmitted = useMemo(() => {
+    if (!user) return isComplete;
+
+    try {
+      const emailKey = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
+      const submissionKey = `chaturvima_assessment_submitted_${emailKey}`;
+      const savedSubmissionStatus = localStorage.getItem(submissionKey);
+      return savedSubmissionStatus === "true" || isComplete;
+    } catch {
+      return isComplete;
+    }
+  }, [user, isComplete]);
+
   // Check if we should show energy break (every 5 questions, but not at the end)
   useEffect(() => {
     if (
@@ -77,6 +91,9 @@ const Assessment = () => {
   }, [progress.percentComplete]);
 
   const handleStart = () => {
+    // Prevent starting if already submitted
+    if (isAssessmentSubmitted) return;
+
     // Check if there are saved answers
     if (!user) {
       startAssessment();
@@ -379,23 +396,44 @@ const Assessment = () => {
             transition={{ delay: 0.7 }}
             className="text-center"
           >
-            <Button
-              onClick={handleStart}
-              size="lg"
-              className="px-12 py-6 text-lg bg-gradient-to-r from-brand-teal to-brand-navy hover:from-brand-teal/90 hover:to-brand-navy/90 shadow-lg hover:shadow-xl transition-all"
-            >
-              <PlayCircle className="mr-2 h-6 w-6" />
-              {hasExistingAnswers ? "Continue Assessment" : "Start Assessment"}
-            </Button>
-            {hasExistingAnswers ? (
-              <p className="mt-4 text-sm text-brand-teal font-medium">
-                Your previous progress has been saved
-              </p>
+            {isAssessmentSubmitted ? (
+              <>
+                <Button
+                  disabled
+                  size="lg"
+                  className="px-12 py-6 text-lg bg-green-500 text-white cursor-not-allowed shadow-lg opacity-90"
+                >
+                  <Check className="mr-2 h-6 w-6" />
+                  Test Submitted
+                </Button>
+                <p className="mt-4 text-sm text-green-600 font-medium">
+                  Your assessment has been successfully submitted. No further
+                  edits are allowed.
+                </p>
+              </>
             ) : (
-              <p className="mt-4 text-sm text-gray-500">
-                Estimated completion time: 10-15 minutes • Your responses are
-                automatically saved!
-              </p>
+              <>
+                <Button
+                  onClick={handleStart}
+                  size="lg"
+                  className="px-12 py-6 text-lg bg-gradient-to-r from-brand-teal to-brand-navy hover:from-brand-teal/90 hover:to-brand-navy/90 shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                >
+                  <PlayCircle className="mr-2 h-6 w-6" />
+                  {hasExistingAnswers
+                    ? "Continue Assessment"
+                    : "Start Assessment"}
+                </Button>
+                {hasExistingAnswers ? (
+                  <p className="mt-4 text-sm text-brand-teal font-medium">
+                    Your previous progress has been saved
+                  </p>
+                ) : (
+                  <p className="mt-4 text-sm text-gray-500">
+                    Estimated completion time: 10-15 minutes • Your responses
+                    are automatically saved!
+                  </p>
+                )}
+              </>
             )}
           </motion.div>
         </motion.div>
