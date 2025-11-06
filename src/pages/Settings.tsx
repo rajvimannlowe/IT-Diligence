@@ -14,7 +14,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Card, CardContent } from "../components/ui";
-import { useUser } from "../context/UserContext";
 
 interface SettingsOption {
   id: string;
