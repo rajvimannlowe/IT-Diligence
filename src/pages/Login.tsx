@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   Shield,
   RefreshCw,
+  User,
 } from "lucide-react";
 
 type LoginStep = "credentials" | "otp" | "success";
@@ -38,6 +39,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { loginWithOTP } = useUser();
   const [step, setStep] = useState<LoginStep>("credentials");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
@@ -59,6 +61,10 @@ const Login = () => {
   }, [otpTimer, step]);
 
   // Validation helpers
+  const validateName = useCallback((name: string) => {
+    return name.trim().length >= 2 && name.trim().length <= 50;
+  }, []);
+
   const validateEmail = useCallback((email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }, []);
@@ -75,6 +81,11 @@ const Login = () => {
     async (e: FormEvent) => {
       e.preventDefault();
       setError("");
+
+      if (!validateName(name)) {
+        setError("Please enter a valid name (2-50 characters)");
+        return;
+      }
 
       if (!validateEmail(email)) {
         setError("Please enter a valid email address");
@@ -101,7 +112,7 @@ const Login = () => {
         setIsSendingOTP(false);
       }
     },
-    [email, mobile, validateEmail, validateMobile]
+    [name, email, mobile, validateName, validateEmail, validateMobile]
   );
 
   const handleResendOTP = useCallback(async () => {
@@ -214,7 +225,7 @@ const Login = () => {
         await new Promise((resolve) => setTimeout(resolve, OTP_VERIFY_DELAY));
 
         // Login user with OTP
-        await loginWithOTP(email, mobile);
+        await loginWithOTP(email, mobile, name.trim());
         setStep("success");
 
         // Redirect to assessment page after showing success message
@@ -227,7 +238,7 @@ const Login = () => {
         setIsLoading(false);
       }
     },
-    [otp, email, mobile, loginWithOTP, navigate]
+    [otp, email, mobile, name, loginWithOTP, navigate]
   );
 
   const handleBackToCredentials = useCallback(() => {
@@ -236,6 +247,7 @@ const Login = () => {
     setOtpTimer(0);
     setCanResendOTP(false);
     setError("");
+    // Keep name, email, and mobile when going back
   }, []);
 
   // Memoized step titles and descriptions
@@ -359,6 +371,30 @@ const Login = () => {
                   className="space-y-4"
                   autoComplete="off"
                 >
+                  {/* Name Input */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                      <Input
+                        type="text"
+                        placeholder="John Doe"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        autoComplete="off"
+                        name="name"
+                        id="name-input"
+                        className="pl-10"
+                        disabled={isSendingOTP}
+                        minLength={2}
+                        maxLength={50}
+                      />
+                    </div>
+                  </div>
+
                   {/* Email Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">
