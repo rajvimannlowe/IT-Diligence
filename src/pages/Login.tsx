@@ -36,8 +36,14 @@ const OTP_SEND_DELAY = 1500;
 const OTP_VERIFY_DELAY = 1500;
 const REDIRECT_DELAY = 1500;
 
-// Dummy credentials for validation
-const VALID_EMAIL = "user@example.com";
+// Dummy credentials for validation - Multiple test emails supported
+const VALID_EMAILS = [
+  "user@example.com",
+  "admin@example.com",
+  "hr@example.com",
+  "manager@example.com",
+  "super-admin@example.com",
+];
 const VALID_COUNTRY_CODE = "+91";
 const VALID_PHONE_NUMBER = "9876543210"; // Format: [country code][phone number] - Must start with 6, 7, 8, or 9
 
@@ -198,7 +204,12 @@ const Login = () => {
       const normalizedEmail = email.toLowerCase().trim();
       const cleanedPhoneNumber = phoneNumber.replace(/\D/g, "");
 
-      if (normalizedEmail !== VALID_EMAIL.toLowerCase()) {
+      // Check if email is in the list of valid emails
+      const isValidEmail = VALID_EMAILS.some(
+        (validEmail) => validEmail.toLowerCase() === normalizedEmail
+      );
+
+      if (!isValidEmail) {
         setError("Invalid email address. Please check your credentials.");
         return;
       }
