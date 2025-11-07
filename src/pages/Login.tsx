@@ -25,6 +25,7 @@ import {
   Shield,
   RefreshCw,
   User,
+  ChevronDown,
 } from "lucide-react";
 
 type LoginStep = "credentials" | "otp" | "success";
@@ -37,7 +38,31 @@ const REDIRECT_DELAY = 1500;
 
 // Dummy credentials for validation
 const VALID_EMAIL = "user@example.com";
-const VALID_MOBILE = "1234567890";
+const VALID_COUNTRY_CODE = "+91";
+const VALID_PHONE_NUMBER = "9876543210"; // Format: [country code][phone number] - Must start with 6, 7, 8, or 9
+
+const countryCodes = [
+  { code: "+1", country: "US", flag: "🇺🇸" },
+  { code: "+91", country: "IN", flag: "🇮🇳" },
+  { code: "+44", country: "GB", flag: "🇬🇧" },
+  { code: "+61", country: "AU", flag: "🇦🇺" },
+  { code: "+86", country: "CN", flag: "🇨🇳" },
+  { code: "+81", country: "JP", flag: "🇯🇵" },
+  { code: "+49", country: "DE", flag: "🇩🇪" },
+  { code: "+33", country: "FR", flag: "🇫🇷" },
+  { code: "+39", country: "IT", flag: "🇮🇹" },
+  { code: "+34", country: "ES", flag: "🇪🇸" },
+  { code: "+7", country: "RU", flag: "🇷🇺" },
+  { code: "+82", country: "KR", flag: "🇰🇷" },
+  { code: "+55", country: "BR", flag: "🇧🇷" },
+  { code: "+52", country: "MX", flag: "🇲🇽" },
+  { code: "+27", country: "ZA", flag: "🇿🇦" },
+  { code: "+971", country: "AE", flag: "🇦🇪" },
+  { code: "+65", country: "SG", flag: "🇸🇬" },
+  { code: "+60", country: "MY", flag: "🇲🇾" },
+  { code: "+66", country: "TH", flag: "🇹🇭" },
+  { code: "+84", country: "VN", flag: "🇻🇳" },
+];
 
 const Login = () => {
   const navigate = useNavigate();
@@ -45,14 +70,45 @@ const Login = () => {
   const [step, setStep] = useState<LoginStep>("credentials");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [error, setError] = useState("");
   const [otpTimer, setOtpTimer] = useState(0);
   const [canResendOTP, setCanResendOTP] = useState(false);
+  const [countryCodeDropdownOpen, setCountryCodeDropdownOpen] = useState(false);
+  const countryCodeDropdownRef = useRef<HTMLDivElement>(null);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        countryCodeDropdownRef.current &&
+        !countryCodeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setCountryCodeDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Update phone number format when country code changes
+  useEffect(() => {
+    if (phoneNumber) {
+      const formatted = formatPhoneNumber(phoneNumber, countryCode);
+      if (formatted !== phoneNumber) {
+        setPhoneNumber(formatted);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countryCode]); // Only run when country code changes
 
   // OTP timer countdown
   useEffect(() => {
@@ -73,13 +129,44 @@ const Login = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }, []);
 
-  const validateMobile = useCallback((mobile: string) => {
-    return /^[0-9]{10}$/.test(mobile.replace(/\D/g, ""));
-  }, []);
+  const validatePhoneNumber = useCallback(
+    (phone: string, countryCode: string) => {
+      const digitsOnly = phone.replace(/\D/g, "");
 
-  const formatMobile = useCallback((value: string) => {
-    return value.replace(/\D/g, "").slice(0, 10);
-  }, []);
+      // India specific validation (+91)
+      if (countryCode === "+91") {
+        if (digitsOnly.length !== 10) {
+          return false;
+        }
+        // Indian mobile numbers must start with 6, 7, 8, or 9
+        return /^[6-9]\d{9}$/.test(digitsOnly);
+      }
+
+      // For other countries
+      // Minimum 7 digits, maximum 15 digits (E.164 standard)
+      return digitsOnly.length >= 7 && digitsOnly.length <= 15;
+    },
+    []
+  );
+
+  const formatPhoneNumber = useCallback(
+    (value: string, countryCode: string) => {
+      // Remove all non-digit characters
+      const digitsOnly = value.replace(/\D/g, "");
+
+      if (countryCode === "+91") {
+        // For Indian numbers: limit to 10 digits and format with space
+        const limitedDigits = digitsOnly.slice(0, 10);
+        return limitedDigits.length > 5
+          ? `${limitedDigits.slice(0, 5)} ${limitedDigits.slice(5)}`
+          : limitedDigits;
+      } else {
+        // For other countries: just digits, no formatting
+        return digitsOnly.slice(0, 15);
+      }
+    },
+    []
+  );
 
   const handleSendOTP = useCallback(
     async (e: FormEvent) => {
@@ -96,21 +183,33 @@ const Login = () => {
         return;
       }
 
-      if (!validateMobile(mobile)) {
-        setError("Please enter a valid 10-digit mobile number");
+      if (!validatePhoneNumber(phoneNumber, countryCode)) {
+        if (countryCode === "+91") {
+          setError(
+            "Indian mobile number must be exactly 10 digits and start with 6, 7, 8, or 9"
+          );
+        } else {
+          setError("Phone number must be between 7 and 15 digits");
+        }
         return;
       }
 
       // Validate credentials against hardcoded values
       const normalizedEmail = email.toLowerCase().trim();
-      const normalizedMobile = mobile.replace(/\D/g, "");
+      const cleanedPhoneNumber = phoneNumber.replace(/\D/g, "");
 
       if (normalizedEmail !== VALID_EMAIL.toLowerCase()) {
         setError("Invalid email address. Please check your credentials.");
         return;
       }
 
-      if (normalizedMobile !== VALID_MOBILE) {
+      // Compare country code and phone number
+      if (countryCode !== VALID_COUNTRY_CODE) {
+        setError("Invalid mobile number. Please check your credentials.");
+        return;
+      }
+
+      if (cleanedPhoneNumber !== VALID_PHONE_NUMBER) {
         setError("Invalid mobile number. Please check your credentials.");
         return;
       }
@@ -130,7 +229,15 @@ const Login = () => {
         setIsSendingOTP(false);
       }
     },
-    [name, email, mobile, validateName, validateEmail, validateMobile]
+    [
+      name,
+      email,
+      countryCode,
+      phoneNumber,
+      validateName,
+      validateEmail,
+      validatePhoneNumber,
+    ]
   );
 
   const handleResendOTP = useCallback(async () => {
@@ -243,7 +350,8 @@ const Login = () => {
         await new Promise((resolve) => setTimeout(resolve, OTP_VERIFY_DELAY));
 
         // Login user with OTP
-        await loginWithOTP(email, mobile, name.trim());
+        const fullMobile = `${countryCode}${phoneNumber.replace(/\D/g, "")}`;
+        await loginWithOTP(email, fullMobile, name.trim());
         setStep("success");
 
         // Redirect to assessment page after showing success message
@@ -256,7 +364,7 @@ const Login = () => {
         setIsLoading(false);
       }
     },
-    [otp, email, mobile, name, loginWithOTP, navigate]
+    [otp, email, countryCode, phoneNumber, name, loginWithOTP, navigate]
   );
 
   // Memoized step titles and descriptions
@@ -268,14 +376,17 @@ const Login = () => {
       },
       otp: {
         title: "Verify OTP",
-        description: `OTP sent to ${email} and ${mobile}`,
+        description: `OTP sent to ${email} and ${countryCode}${phoneNumber.replace(
+          /\s/g,
+          ""
+        )}`,
       },
       success: {
         title: "Login Successful",
         description: "Redirecting to assessment...",
       },
     }),
-    [email, mobile]
+    [email, countryCode, phoneNumber]
   );
 
   return (
@@ -357,7 +468,10 @@ const Login = () => {
                   </div>
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200">
                     <Phone className="h-3.5 w-3.5 text-brand-teal" />
-                    <span className="font-medium text-gray-700">{mobile}</span>
+                    <span className="font-medium text-gray-700">
+                      {countryCode}
+                      {phoneNumber.replace(/\s/g, "")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -431,26 +545,120 @@ const Login = () => {
                     <label className="text-sm font-medium text-gray-700">
                       Mobile Number
                     </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                      <Input
-                        type="tel"
-                        placeholder="1234567890"
-                        value={mobile}
-                        onChange={(e) =>
-                          setMobile(formatMobile(e.target.value))
-                        }
-                        required
-                        autoComplete="off"
-                        name="mobile"
-                        id="mobile-input"
-                        className="pl-10"
-                        maxLength={10}
-                        disabled={isSendingOTP}
-                      />
+                    <div className="flex gap-2">
+                      {/* Country Code Dropdown */}
+                      <div className="relative" ref={countryCodeDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCountryCodeDropdownOpen(!countryCodeDropdownOpen)
+                          }
+                          disabled={isSendingOTP}
+                          className="inline-flex h-11 min-w-[80px] items-center justify-between rounded-lg border border-brand-teal/30 bg-white px-2.5 py-1.5 text-sm text-gray-700 shadow-sm transition-all hover:bg-gradient-to-r hover:from-brand-teal/5 hover:to-brand-navy/5 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-brand-teal/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-base">
+                              {
+                                countryCodes.find(
+                                  (cc) => cc.code === countryCode
+                                )?.flag
+                              }
+                            </span>
+                            <span className="font-medium">{countryCode}</span>
+                          </span>
+                          <ChevronDown
+                            className={`h-3.5 w-3.5 text-gray-500 transition-transform ${
+                              countryCodeDropdownOpen
+                                ? "rotate-180"
+                                : "rotate-0"
+                            }`}
+                          />
+                        </button>
+                        <AnimatePresence>
+                          {countryCodeDropdownOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 6 }}
+                              className="absolute left-0 z-10 mt-2 max-h-60 w-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg custom-scrollbar"
+                            >
+                              {countryCodes.map((item) => (
+                                <button
+                                  key={item.code}
+                                  type="button"
+                                  onClick={() => {
+                                    setCountryCode(item.code);
+                                    setCountryCodeDropdownOpen(false);
+                                  }}
+                                  className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                                    countryCode === item.code
+                                      ? "bg-gradient-to-r from-brand-teal/15 to-brand-navy/15 text-brand-navy font-medium"
+                                      : "text-gray-700 hover:bg-gradient-to-r hover:from-brand-teal/5 hover:to-brand-navy/5"
+                                  }`}
+                                >
+                                  <span className="text-base">{item.flag}</span>
+                                  <span className="flex-1 font-medium">
+                                    {item.code}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    {item.country}
+                                  </span>
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      {/* Phone Number Input */}
+                      <div className="relative flex-1">
+                        <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        <Input
+                          type="tel"
+                          placeholder={
+                            countryCode === "+91"
+                              ? "98765 43210"
+                              : "Enter phone number"
+                          }
+                          value={phoneNumber}
+                          onChange={(e) =>
+                            setPhoneNumber(
+                              formatPhoneNumber(e.target.value, countryCode)
+                            )
+                          }
+                          onKeyDown={(e) => {
+                            // Prevent non-digit keys except backspace, delete, tab, arrow keys
+                            if (
+                              !/[0-9]/.test(e.key) &&
+                              ![
+                                "Backspace",
+                                "Delete",
+                                "Tab",
+                                "ArrowLeft",
+                                "ArrowRight",
+                                "ArrowUp",
+                                "ArrowDown",
+                                "Home",
+                                "End",
+                              ].includes(e.key) &&
+                              !(e.ctrlKey || e.metaKey) // Allow Ctrl/Cmd + A, C, V, X
+                            ) {
+                              e.preventDefault();
+                            }
+                          }}
+                          required
+                          autoComplete="off"
+                          name="phoneNumber"
+                          id="phoneNumber-input"
+                          className="pl-10 h-11"
+                          maxLength={countryCode === "+91" ? 11 : 15} // 10 digits + 1 space for Indian
+                          disabled={isSendingOTP}
+                        />
+                      </div>
                     </div>
                     <p className="text-xs text-gray-500">
-                      Enter 10-digit mobile number
+                      {countryCode === "+91"
+                        ? "Enter 10-digit mobile number"
+                        : "Enter phone number (7-15 digits)"}
                     </p>
                   </div>
 
