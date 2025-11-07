@@ -42,7 +42,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const loginWithOTP = async (
     email: string,
-    mobile: string,
+    // mobile: string,
     name?: string
   ): Promise<void> => {
     // Simulate API call delay for OTP verification
