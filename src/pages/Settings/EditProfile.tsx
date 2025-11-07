@@ -107,6 +107,7 @@ interface FormData {
   name: string;
   designation: string;
   department: string;
+  countryCode: string;
   phoneNumber: string;
   emailAddress: string;
   doj: string;
@@ -126,8 +127,33 @@ const EditProfile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [salutationDropdownOpen, setSalutationDropdownOpen] = useState(false);
   const salutationDropdownRef = useRef<HTMLDivElement>(null);
+  const [countryCodeDropdownOpen, setCountryCodeDropdownOpen] = useState(false);
+  const countryCodeDropdownRef = useRef<HTMLDivElement>(null);
 
   const salutations = ["Mr.", "Mrs.", "Ms.", "Dr.", "Prof."];
+
+  const countryCodes = [
+    { code: "+1", country: "US", flag: "🇺🇸" },
+    { code: "+91", country: "IN", flag: "🇮🇳" },
+    { code: "+44", country: "GB", flag: "🇬🇧" },
+    { code: "+61", country: "AU", flag: "🇦🇺" },
+    { code: "+86", country: "CN", flag: "🇨🇳" },
+    { code: "+81", country: "JP", flag: "🇯🇵" },
+    { code: "+49", country: "DE", flag: "🇩🇪" },
+    { code: "+33", country: "FR", flag: "🇫🇷" },
+    { code: "+39", country: "IT", flag: "🇮🇹" },
+    { code: "+34", country: "ES", flag: "🇪🇸" },
+    { code: "+7", country: "RU", flag: "🇷🇺" },
+    { code: "+82", country: "KR", flag: "🇰🇷" },
+    { code: "+55", country: "BR", flag: "🇧🇷" },
+    { code: "+52", country: "MX", flag: "🇲🇽" },
+    { code: "+27", country: "ZA", flag: "🇿🇦" },
+    { code: "+971", country: "AE", flag: "🇦🇪" },
+    { code: "+65", country: "SG", flag: "🇸🇬" },
+    { code: "+60", country: "MY", flag: "🇲🇾" },
+    { code: "+66", country: "TH", flag: "🇹🇭" },
+    { code: "+84", country: "VN", flag: "🇻🇳" },
+  ];
 
   const [formData, setFormData] = useState<FormData>({
     profilePhoto: "",
@@ -135,7 +161,8 @@ const EditProfile = () => {
     name: "Sarah Johnson",
     designation: "Senior Software Engineer",
     department: "Engineering",
-    phoneNumber: "+1 (555) 123-4567",
+    countryCode: "+91",
+    phoneNumber: "9876543210",
     emailAddress: "sarah.johnson@company.com",
     doj: "2022-03-15",
     address: "123 Main Street, Apt 4B",
@@ -159,7 +186,7 @@ const EditProfile = () => {
     }
   }, [user]);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -167,6 +194,12 @@ const EditProfile = () => {
         !salutationDropdownRef.current.contains(event.target as Node)
       ) {
         setSalutationDropdownOpen(false);
+      }
+      if (
+        countryCodeDropdownRef.current &&
+        !countryCodeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setCountryCodeDropdownOpen(false);
       }
     };
 
@@ -176,8 +209,56 @@ const EditProfile = () => {
     };
   }, []);
 
+  // Update phone number format when country code changes
+  const prevCountryCodeRef = useRef<string>(formData.countryCode);
+  useEffect(() => {
+    if (
+      prevCountryCodeRef.current !== formData.countryCode &&
+      formData.phoneNumber
+    ) {
+      const digitsOnly = formData.phoneNumber.replace(/\D/g, "");
+
+      if (formData.countryCode === "+91") {
+        // For Indian numbers: limit to 10 digits and format with space
+        const limitedDigits = digitsOnly.slice(0, 10);
+        const formatted =
+          limitedDigits.length > 5
+            ? `${limitedDigits.slice(0, 5)} ${limitedDigits.slice(5)}`
+            : limitedDigits;
+        setFormData((prev) => ({ ...prev, phoneNumber: formatted }));
+      } else {
+        // For other countries: just digits, no formatting
+        const limitedDigits = digitsOnly.slice(0, 15);
+        setFormData((prev) => ({ ...prev, phoneNumber: limitedDigits }));
+      }
+      prevCountryCodeRef.current = formData.countryCode;
+    }
+  }, [formData.countryCode, formData.phoneNumber]);
+
   const handleChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Special handling for phone number - only allow digits
+    if (field === "phoneNumber") {
+      // Remove all non-digit characters
+      const digitsOnly = value.replace(/\D/g, "");
+
+      // For Indian numbers, limit to 10 digits
+      if (formData.countryCode === "+91") {
+        const limitedDigits = digitsOnly.slice(0, 10);
+        // Format: add space after 5 digits for better readability
+        const formatted =
+          limitedDigits.length > 5
+            ? `${limitedDigits.slice(0, 5)} ${limitedDigits.slice(5)}`
+            : limitedDigits;
+        setFormData((prev) => ({ ...prev, [field]: formatted }));
+      } else {
+        // For other countries, allow up to 15 digits
+        const limitedDigits = digitsOnly.slice(0, 15);
+        setFormData((prev) => ({ ...prev, [field]: limitedDigits }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
@@ -205,18 +286,107 @@ const EditProfile = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // Name validation
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters";
+    } else if (formData.name.trim().length > 50) {
+      newErrors.name = "Name must be less than 50 characters";
+    } else if (!/^[a-zA-Z\s.'-]+$/.test(formData.name.trim())) {
+      newErrors.name =
+        "Name can only contain letters, spaces, and special characters (., ', -)";
     }
 
+    // Email validation
     if (!formData.emailAddress.trim()) {
       newErrors.emailAddress = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress)) {
       newErrors.emailAddress = "Please enter a valid email address";
+    } else if (formData.emailAddress.length > 100) {
+      newErrors.emailAddress = "Email must be less than 100 characters";
     }
 
-    if (formData.phoneNumber && !/^[\d\s\-+()]+$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = "Please enter a valid phone number";
+    // Phone number validation
+    const cleanedPhone = formData.phoneNumber.replace(/\D/g, ""); // Remove all non-digits
+
+    // India specific validation (+91)
+    if (formData.countryCode === "+91") {
+      if (formData.phoneNumber.trim()) {
+        if (cleanedPhone.length !== 10) {
+          newErrors.phoneNumber =
+            "Indian mobile number must be exactly 10 digits";
+        } else if (!/^[6-9]\d{9}$/.test(cleanedPhone)) {
+          newErrors.phoneNumber =
+            "Indian mobile number must start with 6, 7, 8, or 9";
+        }
+      }
+    } else {
+      // For other countries
+      if (formData.phoneNumber.trim()) {
+        if (cleanedPhone.length < 7) {
+          newErrors.phoneNumber = "Phone number must be at least 7 digits";
+        } else if (cleanedPhone.length > 15) {
+          newErrors.phoneNumber = "Phone number must be less than 15 digits";
+        }
+      }
+    }
+
+    // Date of Joining validation
+    if (formData.doj) {
+      const dojDate = new Date(formData.doj);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (isNaN(dojDate.getTime())) {
+        newErrors.doj = "Please enter a valid date";
+      } else if (dojDate > today) {
+        newErrors.doj = "Date of joining cannot be in the future";
+      } else {
+        // Check if date is too old (e.g., more than 100 years ago)
+        const hundredYearsAgo = new Date();
+        hundredYearsAgo.setFullYear(hundredYearsAgo.getFullYear() - 100);
+        if (dojDate < hundredYearsAgo) {
+          newErrors.doj = "Date of joining seems invalid";
+        }
+      }
+    }
+
+    // Address validation
+    if (formData.address.trim() && formData.address.trim().length > 200) {
+      newErrors.address = "Address must be less than 200 characters";
+    }
+
+    // Location validation
+    if (formData.location.trim() && formData.location.trim().length > 50) {
+      newErrors.location = "Location must be less than 50 characters";
+    }
+
+    // City validation
+    if (formData.city.trim() && formData.city.trim().length > 50) {
+      newErrors.city = "City must be less than 50 characters";
+    } else if (
+      formData.city.trim() &&
+      !/^[a-zA-Z\s.'-]+$/.test(formData.city.trim())
+    ) {
+      newErrors.city =
+        "City can only contain letters, spaces, and special characters";
+    }
+
+    // Country validation
+    if (formData.country.trim() && formData.country.trim().length > 50) {
+      newErrors.country = "Country must be less than 50 characters";
+    } else if (
+      formData.country.trim() &&
+      !/^[a-zA-Z\s.'-]+$/.test(formData.country.trim())
+    ) {
+      newErrors.country =
+        "Country can only contain letters, spaces, and special characters";
+    }
+
+    // Bio validation
+    if (formData.bio.trim() && formData.bio.trim().length > 500) {
+      newErrors.bio = "Bio must be less than 500 characters";
     }
 
     setErrors(newErrors);
@@ -567,16 +737,115 @@ const EditProfile = () => {
                           <Phone className="h-3 w-3 text-gray-400" />
                           Phone Number
                         </label>
-                        <Input
-                          type="tel"
-                          placeholder="+1 (555) 123-4567"
-                          value={formData.phoneNumber}
-                          onChange={(e) =>
-                            handleChange("phoneNumber", e.target.value)
-                          }
-                          error={errors.phoneNumber}
-                          className="h-9 text-sm focus:border-transparent focus:ring-1 focus:ring-brand-teal"
-                        />
+                        <div className="flex gap-2">
+                          {/* Country Code Dropdown */}
+                          <div
+                            className="relative"
+                            ref={countryCodeDropdownRef}
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCountryCodeDropdownOpen(
+                                  !countryCodeDropdownOpen
+                                )
+                              }
+                              className="inline-flex h-9 min-w-[80px] items-center justify-between rounded-lg border border-brand-teal/30 bg-white px-2.5 py-1.5 text-sm text-gray-700 shadow-sm transition-all hover:bg-gradient-to-r hover:from-brand-teal/5 hover:to-brand-navy/5 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-brand-teal/50 cursor-pointer"
+                            >
+                              <span className="flex items-center gap-1.5">
+                                <span className="text-base">
+                                  {
+                                    countryCodes.find(
+                                      (cc) => cc.code === formData.countryCode
+                                    )?.flag
+                                  }
+                                </span>
+                                <span className="font-medium">
+                                  {formData.countryCode}
+                                </span>
+                              </span>
+                              <ChevronDown
+                                className={`h-3.5 w-3.5 text-gray-500 transition-transform ${
+                                  countryCodeDropdownOpen
+                                    ? "rotate-180"
+                                    : "rotate-0"
+                                }`}
+                              />
+                            </button>
+                            <AnimatePresence>
+                              {countryCodeDropdownOpen && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 6 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 6 }}
+                                  className="absolute left-0 z-10 mt-2 max-h-60 w-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg custom-scrollbar"
+                                >
+                                  {countryCodes.map((item) => (
+                                    <button
+                                      key={item.code}
+                                      type="button"
+                                      onClick={() => {
+                                        handleChange("countryCode", item.code);
+                                        setCountryCodeDropdownOpen(false);
+                                      }}
+                                      className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                                        formData.countryCode === item.code
+                                          ? "bg-gradient-to-r from-brand-teal/15 to-brand-navy/15 text-brand-navy font-medium"
+                                          : "text-gray-700 hover:bg-gradient-to-r hover:from-brand-teal/5 hover:to-brand-navy/5"
+                                      }`}
+                                    >
+                                      <span className="text-base">
+                                        {item.flag}
+                                      </span>
+                                      <span className="flex-1 font-medium">
+                                        {item.code}
+                                      </span>
+                                      <span className="text-xs text-gray-500">
+                                        {item.country}
+                                      </span>
+                                    </button>
+                                  ))}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                          {/* Phone Number Input */}
+                          <Input
+                            type="tel"
+                            placeholder={
+                              formData.countryCode === "+91"
+                                ? "98765 43210"
+                                : "Enter phone number"
+                            }
+                            value={formData.phoneNumber}
+                            onChange={(e) =>
+                              handleChange("phoneNumber", e.target.value)
+                            }
+                            onKeyDown={(e) => {
+                              // Prevent non-digit keys except backspace, delete, tab, arrow keys
+                              if (
+                                !/[0-9]/.test(e.key) &&
+                                ![
+                                  "Backspace",
+                                  "Delete",
+                                  "Tab",
+                                  "ArrowLeft",
+                                  "ArrowRight",
+                                  "ArrowUp",
+                                  "ArrowDown",
+                                  "Home",
+                                  "End",
+                                ].includes(e.key) &&
+                                !(e.ctrlKey || e.metaKey) // Allow Ctrl/Cmd + A, C, V, X
+                              ) {
+                                e.preventDefault();
+                              }
+                            }}
+                            maxLength={formData.countryCode === "+91" ? 11 : 15} // 10 digits + 1 space for Indian
+                            error={errors.phoneNumber}
+                            className="h-9 flex-1 text-sm focus:border-transparent focus:ring-1 focus:ring-brand-teal"
+                          />
+                        </div>
                       </div>
 
                       {/* Email Address */}
@@ -627,6 +896,8 @@ const EditProfile = () => {
                           type="date"
                           value={formData.doj}
                           onChange={(e) => handleChange("doj", e.target.value)}
+                          error={errors.doj}
+                          max={new Date().toISOString().split("T")[0]}
                           className="h-9 text-sm focus:border-transparent focus:ring-1 focus:ring-brand-teal"
                         />
                       </div>
@@ -663,6 +934,7 @@ const EditProfile = () => {
                           onChange={(e) =>
                             handleChange("address", e.target.value)
                           }
+                          error={errors.address}
                           className="h-9 text-sm focus:border-transparent focus:ring-1 focus:ring-brand-teal"
                         />
                       </div>
@@ -680,6 +952,7 @@ const EditProfile = () => {
                           onChange={(e) =>
                             handleChange("location", e.target.value)
                           }
+                          error={errors.location}
                           className="h-9 text-sm focus:border-transparent focus:ring-1 focus:ring-brand-teal"
                         />
                       </div>
@@ -695,6 +968,7 @@ const EditProfile = () => {
                           placeholder="Enter city"
                           value={formData.city}
                           onChange={(e) => handleChange("city", e.target.value)}
+                          error={errors.city}
                           className="h-9 text-sm focus:border-transparent focus:ring-1 focus:ring-brand-teal"
                         />
                       </div>
@@ -712,6 +986,7 @@ const EditProfile = () => {
                           onChange={(e) =>
                             handleChange("country", e.target.value)
                           }
+                          error={errors.country}
                           className="h-9 text-sm focus:border-transparent focus:ring-1 focus:ring-brand-teal"
                         />
                       </div>
@@ -740,8 +1015,21 @@ const EditProfile = () => {
                         value={formData.bio}
                         onChange={(e) => handleChange("bio", e.target.value)}
                         rows={4}
-                        className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-teal focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                        maxLength={500}
+                        className={`flex w-full rounded-md border bg-white px-3 py-2 text-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-teal focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
+                          errors.bio
+                            ? "border-red-300 focus:ring-red-500"
+                            : "border-gray-300"
+                        }`}
                       />
+                      <div className="flex items-center justify-between">
+                        {errors.bio && (
+                          <p className="text-xs text-red-600">{errors.bio}</p>
+                        )}
+                        <p className="ml-auto text-xs text-gray-500">
+                          {formData.bio.length}/500 characters
+                        </p>
+                      </div>
                     </div>
                   </motion.div>
 
