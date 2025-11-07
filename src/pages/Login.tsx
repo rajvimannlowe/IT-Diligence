@@ -35,6 +35,10 @@ const OTP_SEND_DELAY = 1500;
 const OTP_VERIFY_DELAY = 1500;
 const REDIRECT_DELAY = 1500;
 
+// Dummy credentials for validation
+const VALID_EMAIL = "user@example.com";
+const VALID_MOBILE = "1234567890";
+
 const Login = () => {
   const navigate = useNavigate();
   const { loginWithOTP } = useUser();
@@ -94,6 +98,20 @@ const Login = () => {
 
       if (!validateMobile(mobile)) {
         setError("Please enter a valid 10-digit mobile number");
+        return;
+      }
+
+      // Validate credentials against hardcoded values
+      const normalizedEmail = email.toLowerCase().trim();
+      const normalizedMobile = mobile.replace(/\D/g, "");
+
+      if (normalizedEmail !== VALID_EMAIL.toLowerCase()) {
+        setError("Invalid email address. Please check your credentials.");
+        return;
+      }
+
+      if (normalizedMobile !== VALID_MOBILE) {
+        setError("Invalid mobile number. Please check your credentials.");
         return;
       }
 
@@ -240,15 +258,6 @@ const Login = () => {
     },
     [otp, email, mobile, name, loginWithOTP, navigate]
   );
-
-  const handleBackToCredentials = useCallback(() => {
-    setStep("credentials");
-    setOtp(Array(OTP_LENGTH).fill(""));
-    setOtpTimer(0);
-    setCanResendOTP(false);
-    setError("");
-    // Keep name, email, and mobile when going back
-  }, []);
 
   // Memoized step titles and descriptions
   const stepConfig = useMemo(
@@ -557,17 +566,6 @@ const Login = () => {
                           {isSendingOTP ? "Sending..." : "Resend OTP"}
                         </button>
                       )}
-                    </div>
-
-                    {/* Back Link */}
-                    <div className="text-center pt-1">
-                      <button
-                        type="button"
-                        onClick={handleBackToCredentials}
-                        className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        ← Change email or mobile number
-                      </button>
                     </div>
                   </div>
 
