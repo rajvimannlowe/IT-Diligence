@@ -537,19 +537,6 @@ const EditProfile = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
-                      <div className="p-2 rounded-md bg-green-100">
-                        <User className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-gray-500 font-medium">
-                          User ID
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900 truncate">
-                          USR-789012
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </CardContent>
