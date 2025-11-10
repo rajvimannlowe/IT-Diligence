@@ -426,7 +426,9 @@ const Login = () => {
             <h1 className="mb-1 bg-gradient-to-r from-brand-navy to-brand-teal bg-clip-text text-3xl font-bold text-transparent">
               IT Due Diligence
             </h1>
-            <p className="text-sm font-medium text-gray-600">Dashboard</p>
+            <p className="text-sm font-medium text-gray-600">
+              Assessment Project
+            </p>
           </motion.div>
         </div>
 
