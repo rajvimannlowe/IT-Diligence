@@ -55,10 +55,14 @@ const AssessmentCategory = () => {
   const [activeSectionId, setActiveSectionId] = useState<string>("");
 
   useEffect(() => {
-    if (sectionProgress.length > 0) {
+    if (!sectionProgress.length) return;
+    const hasActive = sectionProgress.some(
+      (entry) => entry.id === activeSectionId
+    );
+    if (!activeSectionId || !hasActive) {
       setActiveSectionId(sectionProgress[0].id);
     }
-  }, [sectionProgress]);
+  }, [sectionProgress, activeSectionId]);
 
   if (!category) {
     return (
