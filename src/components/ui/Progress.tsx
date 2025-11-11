@@ -12,6 +12,8 @@ export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
   showLabel?: boolean;
   size?: "sm" | "md" | "lg";
   color?: "primary" | "success" | "warning" | "danger";
+  trackClassName?: string;
+  indicatorClassName?: string;
 }
 
 const Progress = forwardRef<HTMLDivElement, ProgressProps>(
@@ -23,6 +25,8 @@ const Progress = forwardRef<HTMLDivElement, ProgressProps>(
       showLabel = false,
       size = "md",
       color = "primary",
+      trackClassName,
+      indicatorClassName,
       ...props
     },
     ref
@@ -55,13 +59,15 @@ const Progress = forwardRef<HTMLDivElement, ProgressProps>(
         <div
           className={cn(
             "w-full overflow-hidden rounded-full bg-gray-200",
-            sizes[size]
+            sizes[size],
+            trackClassName
           )}
         >
           <div
             className={cn(
-              "h-full transition-all duration-500 ease-out rounded-full",
-              colors[color]
+              "h-full rounded-full transition-all duration-500 ease-out",
+              colors[color],
+              indicatorClassName
             )}
             style={{ width: `${percentage}%` }}
           />

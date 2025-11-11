@@ -5,12 +5,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { UserProvider, useUser } from "./context/UserContext";
-import { AssessmentProvider } from "./context/AssessmentContext";
 import { SidebarProvider } from "./context/SidebarContext";
 import Layout from "./components/layout/Layout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Employee/Assessment/AssessmentDashboard";
 import Assessment from "./pages/Employee/Assessment/Assessment";
+import AssessmentCategory from "./pages/Employee/Assessment/AssessmentCategory";
 import AssessmentQuestions from "./pages/Employee/Assessment/AssessmentQuestions";
 import Analytics from "./pages/Analytics";
 import AssessmentReport from "./pages/Employee/Assessment/AssessmentReport";
@@ -21,6 +21,7 @@ import SuperAdminDashboard from "./pages/superAdmin/Dashboard/SuperAdminDashboar
 import Settings from "./pages/Settings/Settings";
 import EditProfile from "./pages/Settings/EditProfile";
 import type { UserRole } from "./types";
+import { DueDiligenceProvider } from "./context/DueDiligenceContext";
 import { getDefaultRouteForRole } from "./config/roleRoutes";
 
 // Protected Route Component
@@ -89,9 +90,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <SidebarProvider>
-              <AssessmentProvider>
+              <DueDiligenceProvider>
                 <Layout />
-              </AssessmentProvider>
+              </DueDiligenceProvider>
             </SidebarProvider>
           </ProtectedRoute>
         }
@@ -109,6 +110,14 @@ function AppRoutes() {
           element={
             <RoleRoute allowedRoles={["employee"]}>
               <Assessment />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/assessment/:categoryId"
+          element={
+            <RoleRoute allowedRoles={["employee"]}>
+              <AssessmentCategory />
             </RoleRoute>
           }
         />

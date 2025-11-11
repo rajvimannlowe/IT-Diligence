@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  /* Variant 3B: Cool Blues & Purples Colors */
-  --color-stages-honeymoon: #475569;
-  --color-stages-honeymoon-light: #f1f5f9;
-  --color-stages-honeymoon-dark: #1e293b;
+  /* Stage palette tuned to the refreshed navy / indigo brand */
+  --color-stages-honeymoon: #4338ca;
+  --color-stages-honeymoon-light: #e0e7ff;
+  --color-stages-honeymoon-dark: #312e81;
 
-  --color-stages-self-reflection: #7c3aed;
-  --color-stages-self-reflection-light: #f5f3ff;
-  --color-stages-self-reflection-dark: #5b21b6;
+  --color-stages-self-reflection: #2563eb;
+  --color-stages-self-reflection-light: #dbeafe;
+  --color-stages-self-reflection-dark: #1e3a8a;
 
-  --color-stages-soul-searching: #0284c7;
-  --color-stages-soul-searching-light: #e0f2fe;
-  --color-stages-soul-searching-dark: #075985;
+  --color-stages-soul-searching: #0f766e;
+  --color-stages-soul-searching-light: #ccfbf1;
+  --color-stages-soul-searching-dark: #134e4a;
 
-  --color-stages-steady-state: #0d9488;
-  --color-stages-steady-state-light: #ccfbf1;
-  --color-stages-steady-state-dark: #134e4a;
+  --color-stages-steady-state: #9333ea;
+  --color-stages-steady-state-light: #ede9fe;
+  --color-stages-steady-state-dark: #6b21a8;
 
-  /* Brand Colors - Update these values to change colors project-wide */
-  --color-brand-navy: #1e3a5f;
-  --color-brand-teal: #2bc6b4;
+  /* Brand Colors - project-wide accents */
+  --color-brand-navy: #0f172a;
+  --color-brand-teal: #6366f1;
 
   /* Custom animations */
   --animate-fade-in: fadeIn 0.3s ease-in-out;

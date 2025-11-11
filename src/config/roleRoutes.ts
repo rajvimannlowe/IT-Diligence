@@ -1,7 +1,7 @@
 import type { UserRole } from "@/types";
 
 export const ROLE_HOME_ROUTE: Record<UserRole, string> = {
-  employee: "/assessment-dashboard",
+  employee: "/assessment",
   "super-admin": "/super-admin-dashboard",
 };
 

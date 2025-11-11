@@ -1,485 +1,271 @@
-/**
- * Assessment Page
- * Complete assessment flow with gamification
- */
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAssessment } from "../../../context/AssessmentContext";
-import { useUser } from "../../../context/UserContext";
-import { Button } from "../../../components/ui";
-import QuestionCard from "../../../components/assessment/QuestionCard";
-import AssessmentProgress from "../../../components/assessment/AssessmentProgress";
-import EnergyBreak from "../../../components/assessment/EnergyBreak";
-import AssessmentResults from "../../../components/assessment/AssessmentResults";
-import CelebrationConfetti from "../../../components/assessment/CelebrationConfetti";
-import { PlayCircle, Check } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Progress,
+} from "@/components/ui";
+import { useDueDiligence } from "@/context/DueDiligenceContext";
+import {
+  DUE_DILIGENCE_CATEGORIES,
+  type DueDiligenceCategory,
+} from "@/data/dueDiligenceCategories";
+import { cn } from "@/utils/cn";
 
 const Assessment = () => {
-  const navigate = useNavigate();
-  const { user } = useUser();
-  const {
-    progress,
-    currentQuestion,
-    isComplete,
-    result,
-    startAssessment,
-    answerQuestion,
-    goToPreviousQuestion,
-    resetAssessment,
-    answers,
-  } = useAssessment();
+  const { getCategoryProgress, lockAssessment, isLocked } = useDueDiligence();
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(isLocked);
 
-  // Wrapper for backward compatibility with QuestionCard
-  const handleAnswer = (optionIndex: number) => {
-    if (currentQuestion) {
-      answerQuestion(currentQuestion.id, optionIndex);
-    }
-  };
-
-  const [showEnergyBreak, setShowEnergyBreak] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
-
-  // Check if user has existing saved answers
-  const hasExistingAnswers = useMemo(() => {
-    if (!user) return false;
-
-    try {
-      // Use user-specific storage key
-      const emailKey = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
-      const storageKey = `chaturvima_assessment_answers_${emailKey}`;
-      const savedAnswers = localStorage.getItem(storageKey);
-      return savedAnswers && Object.keys(JSON.parse(savedAnswers)).length > 0;
-    } catch {
-      return Object.keys(answers).length > 0;
-    }
-  }, [answers, user]);
-
-  // Check if assessment is already submitted
-  const isAssessmentSubmitted = useMemo(() => {
-    if (!user) return isComplete;
-
-    try {
-      const emailKey = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
-      const submissionKey = `chaturvima_assessment_submitted_${emailKey}`;
-      const savedSubmissionStatus = localStorage.getItem(submissionKey);
-      return savedSubmissionStatus === "true" || isComplete;
-    } catch {
-      return isComplete;
-    }
-  }, [user, isComplete]);
-
-  // Check if we should show energy break (every 5 questions, but not at the end)
   useEffect(() => {
-    if (
-      progress.currentQuestionIndex > 0 &&
-      progress.currentQuestionIndex % 5 === 0 &&
-      progress.currentQuestionIndex < progress.totalQuestions
-    ) {
-      setShowEnergyBreak(true);
-    }
-  }, [progress.currentQuestionIndex, progress.totalQuestions]);
+    setHasSubmitted(isLocked);
+  }, [isLocked]);
 
-  // Trigger confetti at milestones
-  useEffect(() => {
-    const milestones = [25, 50, 75, 100];
-    if (milestones.includes(progress.percentComplete)) {
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 100); // Reset for next milestone
-    }
-  }, [progress.percentComplete]);
+  const overallStats = useMemo(() => {
+    let totalQuestions = 0;
+    let answeredQuestions = 0;
+    let completedCategories = 0;
 
-  const handleStart = () => {
-    // Prevent starting if already submitted
-    if (isAssessmentSubmitted) return;
+    DUE_DILIGENCE_CATEGORIES.forEach((category) => {
+      const progress = getCategoryProgress(category);
+      totalQuestions += progress.total;
+      answeredQuestions += progress.answered;
 
-    // Check if there are saved answers
-    if (!user) {
-      startAssessment();
-      navigate("/assessment/questions");
-      return;
-    }
-
-    try {
-      // Use user-specific storage key
-      const emailKey = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
-      const storageKey = `chaturvima_assessment_answers_${emailKey}`;
-      const savedAnswers = localStorage.getItem(storageKey);
-      const hasExistingAnswers =
-        savedAnswers && Object.keys(JSON.parse(savedAnswers)).length > 0;
-
-      if (!hasExistingAnswers) {
-        // No saved answers - start fresh assessment
-        startAssessment();
+      if (progress.total > 0 && progress.answered === progress.total) {
+        completedCategories += 1;
       }
-      // If has existing answers, don't call startAssessment() to preserve them
-      navigate("/assessment/questions");
-    } catch {
-      // If error parsing, start fresh
-      startAssessment();
-      navigate("/assessment/questions");
-    }
+    });
+
+    const percent = totalQuestions
+      ? Math.round((answeredQuestions / totalQuestions) * 100)
+      : 0;
+
+    return {
+      totalQuestions,
+      answeredQuestions,
+      completedCategories,
+      totalCategories: DUE_DILIGENCE_CATEGORIES.length,
+      percent,
+    };
+  }, [getCategoryProgress]);
+
+  const canSubmit =
+    !isLocked &&
+    overallStats.totalCategories > 0 &&
+    overallStats.completedCategories === overallStats.totalCategories;
+
+  const handleSubmitAssessment = () => {
+    if (!canSubmit || hasSubmitted) return;
+    setIsSubmitModalOpen(true);
   };
 
-  const handleContinueFromBreak = () => {
-    setShowEnergyBreak(false);
+  const handleConfirmSubmit = () => {
+    lockAssessment();
+    setHasSubmitted(true);
+    setIsSubmitModalOpen(false);
   };
 
-  const handleRetake = () => {
-    resetAssessment();
-    setHasStarted(false);
-    setShowEnergyBreak(false);
-  };
+  const handleCancelSubmit = () => setIsSubmitModalOpen(false);
 
-  // If assessment is submitted, always show welcome screen with disabled button
-  // Not started state (or submitted state - show welcome screen with disabled button)
-  if (isAssessmentSubmitted || (!hasStarted && !isComplete)) {
+  const renderCategoryCard = (
+    category: DueDiligenceCategory,
+    index: number
+  ) => {
+    const progress = getCategoryProgress(category);
+    const isComplete =
+      progress.answered === progress.total && progress.total > 0;
+
     return (
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+      <motion.div
+        key={category.id}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+      >
+        <Card
+          variant="elevated"
+          className={cn(
+            "group relative h-full overflow-hidden border bg-white/80 backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-xl",
+            isComplete
+              ? "border-green-200 shadow-green-100"
+              : "border-gray-200/70"
+          )}
         >
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="flex justify-center mb-6"
-            >
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-brand-teal via-brand-navy to-purple-600 flex items-center justify-center shadow-lg">
-                  <PlayCircle className="w-20 h-20 text-white" />
+          <span
+            className={cn(
+              "absolute inset-x-0 top-0 h-1",
+              isComplete
+                ? "bg-linear-to-r from-emerald-400 via-emerald-500 to-emerald-400"
+                : "bg-linear-to-r from-brand-teal via-brand-cyan to-brand-indigo"
+            )}
+          />
+          <CardHeader className="space-y-3 pb-0 pt-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-brand-teal">
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  {category.label}
                 </div>
-                <motion.div
-                  className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 border-4 border-white"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                <CardTitle className="text-lg leading-snug text-gray-900">
+                  {category.title}
+                </CardTitle>
+                {category.description ? (
+                  <p className="text-xs text-gray-600">
+                    {category.description}
+                  </p>
+                ) : null}
+              </div>
+              {isComplete ? (
+                <div className="flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700 shadow-sm">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Complete
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                  {progress.answered}/{progress.total}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span>{category.sections.length} sections</span>
+              <span aria-hidden="true">•</span>
+              <span>{progress.total} questions</span>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-5 pt-5">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>{progress.answered} responses</span>
+                <span className="font-semibold text-gray-700">
+                  {progress.percent}%
+                </span>
+              </div>
+              <Progress
+                value={progress.percent}
+                trackClassName="bg-gray-200/80"
+                indicatorClassName={cn(
+                  "bg-linear-to-r from-brand-teal via-brand-cyan to-brand-indigo",
+                  isComplete &&
+                    "from-emerald-400 via-emerald-500 to-emerald-400 shadow-[0_0_12px_rgba(74,222,128,0.6)]"
+                )}
+              />
+            </div>
+            <Link
+              to={`/assessment/${category.id}`}
+              className="group inline-flex w-full items-center justify-between rounded-lg border border-brand-teal/60 bg-white px-3 py-2 text-sm font-semibold text-brand-teal transition-all hover:bg-brand-teal hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2"
+            >
+              <span>Open category</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  };
+
+  return (
+    <div className="space-y-5">
+      <Card className="m-0 border-none bg-transparent shadow-none p-0 mb-10">
+        <CardContent className="p-0">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-slate-900 via-indigo-900 to-indigo-600 text-white shadow-[0_28px_50px_-25px_rgba(15,23,42,0.35)]">
+            <div className="pointer-events-none absolute inset-x-10 bottom-[-80px] h-64 rounded-full bg-indigo-400/20 blur-[120px]" />
+            <div className="relative grid gap-6 p-6 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] md:p-7">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-indigo-200">
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  Employee assessment workspace
+                </div>
+                <h1 className="text-3xl font-semibold leading-tight md:text-[32px]">
+                  Due Diligence Assessment
+                </h1>
+                <p className="max-w-xl text-sm text-slate-100/80">
+                  Quickly review what’s complete and what still needs your
+                  input.
+                </p>
+                <Progress
+                  value={overallStats.percent}
+                  className="mt-4 h-2"
+                  trackClassName="bg-white/20"
+                  indicatorClassName="bg-linear-to-r from-indigo-300 via-indigo-400 to-indigo-500"
                 />
               </div>
-            </motion.div>
-
-            <h1 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
-              <span
-                className="inline-block bg-gradient-to-r from-brand-navy to-brand-teal bg-clip-text text-transparent"
-                style={{ paddingBottom: "0.15em", lineHeight: "1.1" }}
-              >
-                Organizational Health Assessment
-              </span>
-            </h1>
-
-            <p className="text-xl text-gray-600 mb-2 max-w-3xl mx-auto leading-relaxed">
-              Evaluate your organizational health across four key stages of
-              engagement and discover your current position in the workplace
-              journey
-            </p>
-            <p className="text-base text-gray-500 max-w-2xl mx-auto">
-              Built on the ChaturVima framework - a validated model for
-              understanding employee experience, organizational alignment, and
-              workplace satisfaction
-            </p>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid md:grid-cols-4 gap-4 mb-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-4xl font-bold text-blue-600">25</p>
-                <div className="w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center">
-                  <span className="text-2xl">❓</span>
-                </div>
-              </div>
-              <p className="text-sm font-medium text-blue-900">Questions</p>
-              <p className="text-xs text-blue-700 mt-1">
-                Multi-dimensional evaluation
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-4xl font-bold text-purple-600">10-15</p>
-                <div className="w-12 h-12 rounded-full bg-purple-200 flex items-center justify-center">
-                  <span className="text-2xl">⏱️</span>
-                </div>
-              </div>
-              <p className="text-sm font-medium text-purple-900">Minutes</p>
-              <p className="text-xs text-purple-700 mt-1">At your own pace</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-4xl font-bold text-green-600">4</p>
-                <div className="w-12 h-12 rounded-full bg-green-200 flex items-center justify-center">
-                  <span className="text-2xl">🎯</span>
-                </div>
-              </div>
-              <p className="text-sm font-medium text-green-900">Stages</p>
-              <p className="text-xs text-green-700 mt-1">
-                Comprehensive evaluation
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="p-6 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl border border-amber-200 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-4xl font-bold text-amber-600">100%</p>
-                <div className="w-12 h-12 rounded-full bg-amber-200 flex items-center justify-center">
-                  <span className="text-2xl">🔒</span>
-                </div>
-              </div>
-              <p className="text-sm font-medium text-amber-900">Private</p>
-              <p className="text-xs text-amber-700 mt-1">Your data secured</p>
-            </motion.div>
-          </div>
-
-          {/* Information Cards */}
-          <div className="grid md:grid-cols-2 gap-6 mb-10">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="p-6 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-200"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-2xl">📊</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    What You'll Discover
-                  </h3>
-                  <ul className="space-y-1.5 text-sm text-gray-700">
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Your primary organizational stage (Honeymoon,
-                      Self-Reflection, Soul-Searching, or Steady-State)
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Stage-by-stage breakdown showing your responses across all
-                      four dimensions
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Insights into engagement levels, trust, alignment, and
-                      satisfaction
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Actionable recommendations based on your assessment
-                      results
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              className="p-6 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-200"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-2xl">💡</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    Tips for Best Results
-                  </h3>
-                  <ul className="space-y-1.5 text-sm text-gray-700">
-                    <li className="flex items-center gap-2">
-                      <span className="text-blue-500">•</span>
-                      Answer based on your genuine experience - there are no
-                      wrong answers
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-blue-500">•</span>
-                      You can review and edit your answers anytime before
-                      submitting
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-blue-500">•</span>
-                      Your progress is automatically saved - return anytime to
-                      continue
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-blue-500">•</span>
-                      Use the quick navigation sidebar to jump to specific
-                      questions
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Process Steps */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="mb-10 p-6 bg-gradient-to-r from-brand-teal/10 via-brand-navy/10 to-purple-50 rounded-xl border border-brand-teal/20"
-          >
-            <h3 className="font-semibold text-gray-900 mb-4 text-center">
-              Assessment Process
-            </h3>
-            <div className="grid md:grid-cols-4 gap-4">
-              {[
-                {
-                  step: "1",
-                  title: "Complete 25 Questions",
-                  icon: "✍️",
-                  desc: "Multi-stage evaluation",
-                },
-                {
-                  step: "2",
-                  title: "Auto-saved Progress",
-                  icon: "💾",
-                  desc: "Never lose your work",
-                },
-                {
-                  step: "3",
-                  title: "Review Your Answers",
-                  icon: "📋",
-                  desc: "Edit before submitting",
-                },
-                {
-                  step: "4",
-                  title: "Get Detailed Results",
-                  icon: "📊",
-                  desc: "Insights & recommendations",
-                },
-              ].map((item, idx) => (
-                <div key={idx} className="text-center">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-white border-2 border-brand-teal flex items-center justify-center mb-2 shadow-sm">
-                    <span className="text-2xl">{item.icon}</span>
+              <div className="grid gap-3 text-sm text-slate-100/80">
+                <div className="rounded-xl bg-white/10 p-3.5 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.4)] backdrop-blur">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-100/70">
+                    Snapshot
                   </div>
-                  <div className="text-xs font-medium text-brand-teal mb-1">
-                    Step {item.step}
+                  <div className="mt-2 space-y-1.5 text-sm">
+                    <div>
+                      Responses: {overallStats.answeredQuestions} /{" "}
+                      {overallStats.totalQuestions}
+                    </div>
+                    <div>
+                      Categories: {overallStats.completedCategories} /{" "}
+                      {overallStats.totalCategories}
+                    </div>
                   </div>
-                  <div className="text-sm font-medium text-gray-900 mb-0.5">
-                    {item.title}
-                  </div>
-                  <div className="text-xs text-gray-600">{item.desc}</div>
                 </div>
-              ))}
+                <Button
+                  onClick={handleSubmitAssessment}
+                  disabled={!canSubmit || hasSubmitted}
+                  className={cn(
+                    "w-full justify-center border border-white/20 bg-white/10 text-slate-100 transition-colors",
+                    hasSubmitted
+                      ? "bg-emerald-500 text-white border-emerald-400 cursor-default"
+                      : "hover:bg-white hover:text-indigo-900 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/10 disabled:text-slate-300"
+                  )}
+                >
+                  {hasSubmitted
+                    ? "Assessment submitted"
+                    : canSubmit
+                    ? "Submit assessment"
+                    : "Complete all categories"}
+                </Button>
+              </div>
             </div>
-          </motion.div>
+          </div>
+        </CardContent>
+      </Card>
 
-          {/* CTA Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="text-center"
-          >
-            {isAssessmentSubmitted ? (
-              <>
-                <Button
-                  disabled
-                  size="lg"
-                  className="px-12 py-6 text-lg bg-green-500 text-white cursor-not-allowed shadow-lg opacity-90"
-                >
-                  <Check className="mr-2 h-6 w-6" />
-                  Test Submitted
-                </Button>
-                <p className="mt-4 text-sm text-green-600 font-medium">
-                  Your assessment has been successfully submitted. No further
-                  edits are allowed.
-                </p>
-              </>
-            ) : (
-              <>
-                <Button
-                  onClick={handleStart}
-                  size="lg"
-                  className="px-12 py-6 text-lg bg-gradient-to-r from-brand-teal to-brand-navy hover:from-brand-teal/90 hover:to-brand-navy/90 shadow-lg hover:shadow-xl transition-all cursor-pointer"
-                >
-                  <PlayCircle className="mr-2 h-6 w-6" />
-                  {hasExistingAnswers
-                    ? "Continue Assessment"
-                    : "Start Assessment"}
-                </Button>
-                {hasExistingAnswers ? (
-                  <p className="mt-4 text-sm text-brand-teal font-medium">
-                    Your previous progress has been saved
-                  </p>
-                ) : (
-                  <p className="mt-4 text-sm text-gray-500">
-                    Estimated completion time: 10-15 minutes • Your responses
-                    are automatically saved!
-                  </p>
-                )}
-              </>
-            )}
-          </motion.div>
-        </motion.div>
-      </div>
-    );
-  }
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {DUE_DILIGENCE_CATEGORIES.map(renderCategoryCard)}
+      </section>
 
-  // If assessment is submitted, show welcome screen with disabled button (not results)
-  // Assessment complete state - only show results if not submitted
-  if (isComplete && result && !isAssessmentSubmitted) {
-    return <AssessmentResults result={result} onRetake={handleRetake} />;
-  }
-
-  // Assessment in progress
-  return (
-    <div className="space-y-6">
-      <CelebrationConfetti trigger={showConfetti} />
-
-      {/* Progress Bar */}
-      <AssessmentProgress
-        current={progress.currentQuestionIndex}
-        total={progress.totalQuestions}
-        percentage={progress.percentComplete}
-      />
-
-      {/* Question or Energy Break */}
-      <AnimatePresence mode="wait">
-        {showEnergyBreak ? (
-          <EnergyBreak
-            key="energy-break"
-            questionNumber={progress.currentQuestionIndex}
-            onContinue={handleContinueFromBreak}
-          />
-        ) : currentQuestion ? (
-          <QuestionCard
-            key={currentQuestion.id}
-            question={currentQuestion}
-            questionNumber={progress.currentQuestionIndex + 1}
-            totalQuestions={progress.totalQuestions}
-            onAnswer={handleAnswer}
-            onPrevious={goToPreviousQuestion}
-            canGoPrevious={progress.currentQuestionIndex > 0}
-          />
-        ) : null}
-      </AnimatePresence>
+      {isSubmitModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Submit assessment?
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              You’ve completed all {overallStats.totalCategories} categories.
+              Submit now to hand off responses for review. Editing will be
+              locked after submission.
+            </p>
+            <ul className="mt-4 space-y-1 text-sm text-gray-700">
+              <li>Responses captured: {overallStats.answeredQuestions}</li>
+              <li>Categories: {overallStats.completedCategories}</li>
+            </ul>
+            <div className="mt-6 flex items-center gap-2">
+              <Button onClick={handleConfirmSubmit} className="flex-1">
+                Confirm submission
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleCancelSubmit}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
