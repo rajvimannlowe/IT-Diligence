@@ -23,7 +23,6 @@ interface DueDiligenceContextValue {
     questionId: string,
     value: string
   ) => void;
-  resetCategory: (categoryId: string) => void;
   lastSavedAt: Date | null;
   isLocked: boolean;
   lockAssessment: () => void;
@@ -144,29 +143,6 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
     [isLocked]
   );
 
-  const resetCategory = useCallback(
-    (categoryId: string) => {
-      if (isLocked) return;
-      const category = DUE_DILIGENCE_CATEGORIES.find(
-        (entry) => entry.id === categoryId
-      );
-      if (!category) return;
-
-      const nextCategoryState: CategoryResponses = {};
-      category.sections.forEach((section) => {
-        section.questions.forEach((question) => {
-          nextCategoryState[question.id] = "";
-        });
-      });
-
-      setResponses((prev) => ({
-        ...prev,
-        [categoryId]: nextCategoryState,
-      }));
-    },
-    [isLocked]
-  );
-
   const lockAssessment = useCallback(() => {
     setIsLocked(true);
   }, []);
@@ -207,7 +183,6 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
   const value: DueDiligenceContextValue = {
     responses,
     updateResponse,
-    resetCategory,
     lastSavedAt,
     isLocked,
     lockAssessment,

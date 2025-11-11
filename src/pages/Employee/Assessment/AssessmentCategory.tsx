@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, FileText, Inbox, RotateCcw } from "lucide-react";
+import { ArrowLeft, FileText, Inbox } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -28,8 +28,7 @@ const AssessmentCategory = () => {
   const navigate = useNavigate();
   const category = useMemo(() => findCategory(categoryId), [categoryId]);
 
-  const { responses, updateResponse, resetCategory, isLocked } =
-    useDueDiligence();
+  const { responses, updateResponse, isLocked } = useDueDiligence();
 
   const categoryResponses = useMemo(() => {
     if (!category) return {} as Record<string, string>;
@@ -52,17 +51,31 @@ const AssessmentCategory = () => {
     });
   }, [category, categoryResponses]);
 
-  const [activeSectionId, setActiveSectionId] = useState<string>("");
+  const defaultActiveSectionId = useMemo(() => {
+    if (!sectionProgress.length) return "";
+
+    const firstIncomplete = sectionProgress.find(
+      (entry) => entry.answered < entry.total
+    );
+
+    return (firstIncomplete ?? sectionProgress[0])?.id ?? "";
+  }, [sectionProgress]);
+
+  const [activeSectionId, setActiveSectionId] = useState<string>(
+    defaultActiveSectionId
+  );
 
   useEffect(() => {
     if (!sectionProgress.length) return;
+
     const hasActive = sectionProgress.some(
       (entry) => entry.id === activeSectionId
     );
-    if (!activeSectionId || !hasActive) {
-      setActiveSectionId(sectionProgress[0].id);
+
+    if (!hasActive && defaultActiveSectionId) {
+      setActiveSectionId(defaultActiveSectionId);
     }
-  }, [sectionProgress, activeSectionId]);
+  }, [sectionProgress, activeSectionId, defaultActiveSectionId]);
 
   if (!category) {
     return (
@@ -130,16 +143,6 @@ const AssessmentCategory = () => {
             {category.label}
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => resetCategory(category.id)}
-          disabled={isLocked}
-          className="inline-flex cursor-pointer items-center gap-1.5 text-xs shadow-sm hover:shadow disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-          Clear responses
-        </Button>
       </div>
 
       <Card className="m-0 border-none bg-transparent shadow-none p-0 mb-10">
@@ -185,13 +188,14 @@ const AssessmentCategory = () => {
         <Card className="border border-gray-200 shadow-sm">
           <CardContent className="flex items-center gap-2 overflow-x-auto p-0">
             {category.sections.map((section) => {
-              const progress = sectionProgress.find(
+              const progressEntry = sectionProgress.find(
                 (entry) => entry.id === section.id
               );
-              const isActive = section.id === activeSection?.id;
-              const isComplete =
-                (progress?.answered ?? 0) === (progress?.total ?? 0) &&
-                (progress?.total ?? 0) > 0;
+              const completed =
+                (progressEntry?.answered ?? 0) ===
+                  (progressEntry?.total ?? 0) &&
+                (progressEntry?.total ?? 0) > 0;
+              const isActive = section.id === activeSectionId;
 
               return (
                 <button
@@ -200,22 +204,22 @@ const AssessmentCategory = () => {
                   onClick={() => setActiveSectionId(section.id)}
                   className={cn(
                     "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-colors",
-                    isActive
+                    completed
+                      ? "border-green-400 bg-green-500 text-white shadow-sm"
+                      : isActive
                       ? "border-brand-teal bg-brand-teal text-white shadow-sm"
                       : "border-transparent bg-gray-100 text-gray-700 hover:border-brand-teal/60 hover:bg-white"
                   )}
                 >
                   {section.title}
-                  {progress ? (
+                  {progressEntry ? (
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 text-[10px] font-bold",
-                        isComplete
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-600"
+                        completed ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"
                       )}
                     >
-                      {progress.answered}/{progress.total}
+                      {progressEntry.answered}/{progressEntry.total}
                     </span>
                   ) : null}
                 </button>
