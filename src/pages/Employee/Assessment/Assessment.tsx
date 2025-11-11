@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -7,6 +7,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Button,
   Progress,
 } from "@/components/ui";
 import { useDueDiligence } from "@/context/DueDiligenceContext";
@@ -17,7 +18,13 @@ import {
 import { cn } from "@/utils/cn";
 
 const Assessment = () => {
-  const { getCategoryProgress } = useDueDiligence();
+  const { getCategoryProgress, lockAssessment, isLocked } = useDueDiligence();
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(isLocked);
+
+  useEffect(() => {
+    setHasSubmitted(isLocked);
+  }, [isLocked]);
 
   const overallStats = useMemo(() => {
     let totalQuestions = 0;
@@ -46,6 +53,24 @@ const Assessment = () => {
       percent,
     };
   }, [getCategoryProgress]);
+
+  const canSubmit =
+    !isLocked &&
+    overallStats.totalCategories > 0 &&
+    overallStats.completedCategories === overallStats.totalCategories;
+
+  const handleSubmitAssessment = () => {
+    if (!canSubmit || hasSubmitted) return;
+    setIsSubmitModalOpen(true);
+  };
+
+  const handleConfirmSubmit = () => {
+    lockAssessment();
+    setHasSubmitted(true);
+    setIsSubmitModalOpen(false);
+  };
+
+  const handleCancelSubmit = () => setIsSubmitModalOpen(false);
 
   const renderCategoryCard = (
     category: DueDiligenceCategory,
@@ -169,7 +194,7 @@ const Assessment = () => {
                   indicatorClassName="bg-linear-to-r from-indigo-300 via-indigo-400 to-indigo-500"
                 />
               </div>
-              <div className="grid gap-2 text-sm text-slate-100/80">
+              <div className="grid gap-3 text-sm text-slate-100/80">
                 <div className="rounded-xl bg-white/10 p-3.5 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.4)] backdrop-blur">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-100/70">
                     Snapshot
@@ -185,6 +210,22 @@ const Assessment = () => {
                     </div>
                   </div>
                 </div>
+                <Button
+                  onClick={handleSubmitAssessment}
+                  disabled={!canSubmit || hasSubmitted}
+                  className={cn(
+                    "w-full justify-center border border-white/20 bg-white/10 text-slate-100 transition-colors",
+                    hasSubmitted
+                      ? "bg-emerald-500 text-white border-emerald-400 cursor-default"
+                      : "hover:bg-white hover:text-indigo-900 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/10 disabled:text-slate-300"
+                  )}
+                >
+                  {hasSubmitted
+                    ? "Assessment submitted"
+                    : canSubmit
+                    ? "Submit assessment"
+                    : "Complete all categories"}
+                </Button>
               </div>
             </div>
           </div>
@@ -194,6 +235,37 @@ const Assessment = () => {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {DUE_DILIGENCE_CATEGORIES.map(renderCategoryCard)}
       </section>
+
+      {isSubmitModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Submit assessment?
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              You’ve completed all {overallStats.totalCategories} categories.
+              Submit now to hand off responses for review. Editing will be
+              locked after submission.
+            </p>
+            <ul className="mt-4 space-y-1 text-sm text-gray-700">
+              <li>Responses captured: {overallStats.answeredQuestions}</li>
+              <li>Categories: {overallStats.completedCategories}</li>
+            </ul>
+            <div className="mt-6 flex items-center gap-2">
+              <Button onClick={handleConfirmSubmit} className="flex-1">
+                Confirm submission
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleCancelSubmit}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

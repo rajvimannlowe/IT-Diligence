@@ -1,20 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Clock,
-  FileText,
-  Inbox,
-  ListChecks,
-  RotateCcw,
-  Save,
-} from "lucide-react";
+import { ArrowLeft, FileText, Inbox, RotateCcw } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
   Button,
   Progress,
   Textarea,
@@ -35,7 +28,37 @@ const AssessmentCategory = () => {
   const navigate = useNavigate();
   const category = useMemo(() => findCategory(categoryId), [categoryId]);
 
-  const { responses, updateResponse, resetCategory } = useDueDiligence();
+  const { responses, updateResponse, resetCategory, isLocked } =
+    useDueDiligence();
+
+  const categoryResponses = useMemo(() => {
+    if (!category) return {} as Record<string, string>;
+    return responses[category.id] ?? {};
+  }, [category, responses]);
+
+  const sectionProgress = useMemo(() => {
+    if (!category)
+      return [] as { id: string; answered: number; total: number }[];
+
+    return category.sections.map((section) => {
+      const answered = section.questions.filter(
+        (question) => (categoryResponses[question.id] ?? "").trim() !== ""
+      ).length;
+      return {
+        id: section.id,
+        answered,
+        total: section.questions.length,
+      };
+    });
+  }, [category, categoryResponses]);
+
+  const [activeSectionId, setActiveSectionId] = useState<string>("");
+
+  useEffect(() => {
+    if (sectionProgress.length > 0) {
+      setActiveSectionId(sectionProgress[0].id);
+    }
+  }, [sectionProgress]);
 
   if (!category) {
     return (
@@ -62,27 +85,6 @@ const AssessmentCategory = () => {
       </div>
     );
   }
-
-  const categoryResponses = responses[category.id] ?? {};
-
-  const sectionProgress = useMemo(
-    () =>
-      category.sections.map((section) => {
-        const answered = section.questions.filter(
-          (question) => (categoryResponses[question.id] ?? "").trim() !== ""
-        ).length;
-        return {
-          id: section.id,
-          answered,
-          total: section.questions.length,
-        };
-      }),
-    [category.sections, categoryResponses]
-  );
-
-  const [activeSectionId, setActiveSectionId] = useState<string>(
-    sectionProgress[0]?.id ?? ""
-  );
 
   const activeSection =
     category.sections.find((section) => section.id === activeSectionId) ??
@@ -128,7 +130,8 @@ const AssessmentCategory = () => {
           variant="outline"
           size="sm"
           onClick={() => resetCategory(category.id)}
-          className="inline-flex cursor-pointer items-center gap-1.5 text-xs shadow-sm hover:shadow"
+          disabled={isLocked}
+          className="inline-flex cursor-pointer items-center gap-1.5 text-xs shadow-sm hover:shadow disabled:cursor-not-allowed disabled:opacity-60"
         >
           <RotateCcw className="h-3.5 w-3.5" />
           Clear responses
@@ -290,6 +293,7 @@ const AssessmentCategory = () => {
                           }
                           placeholder="Capture your response here..."
                           description="Changes are saved automatically."
+                          disabled={isLocked}
                         />
                       </CardContent>
                     </Card>

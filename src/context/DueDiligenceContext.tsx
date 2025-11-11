@@ -25,6 +25,8 @@ interface DueDiligenceContextValue {
   ) => void;
   resetCategory: (categoryId: string) => void;
   lastSavedAt: Date | null;
+  isLocked: boolean;
+  lockAssessment: () => void;
   getCategoryProgress: (category: DueDiligenceCategory) => {
     total: number;
     answered: number;
@@ -37,6 +39,7 @@ const DueDiligenceContext = createContext<DueDiligenceContextValue | undefined>(
 );
 
 const STORAGE_PREFIX = "itdd_employee_responses_";
+const LOCK_STORAGE_PREFIX = "itdd_employee_submitted_";
 
 const buildInitialState = (): ResponsesState => {
   return DUE_DILIGENCE_CATEGORIES.reduce<ResponsesState>((acc, category) => {
@@ -65,6 +68,13 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
     return `${STORAGE_PREFIX}${emailKey}`;
   }, [user?.email]);
 
+  const lockStorageKey = useMemo(() => {
+    const emailKey = user?.email
+      ? user.email.toLowerCase().replace(/[^a-z0-9]/g, "_")
+      : "anonymous";
+    return `${LOCK_STORAGE_PREFIX}${emailKey}`;
+  }, [user?.email]);
+
   const [responses, setResponses] = useState<ResponsesState>(() => {
     try {
       const stored = localStorage.getItem(storageKey);
@@ -78,6 +88,14 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [isLocked, setIsLocked] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem(lockStorageKey);
+      return stored === "true";
+    } catch (error) {
+      return false;
+    }
+  });
 
   useEffect(() => {
     try {
@@ -95,6 +113,16 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     try {
+      const stored = localStorage.getItem(lockStorageKey);
+      setIsLocked(stored === "true");
+    } catch (error) {
+      console.error("Unable to hydrate submission lock from storage", error);
+      setIsLocked(false);
+    }
+  }, [lockStorageKey]);
+
+  useEffect(() => {
+    try {
       localStorage.setItem(storageKey, JSON.stringify(responses));
       setLastSavedAt(new Date());
     } catch (error) {
@@ -104,6 +132,7 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
 
   const updateResponse = useCallback(
     (categoryId: string, questionId: string, value: string) => {
+      if (isLocked) return;
       setResponses((prev) => ({
         ...prev,
         [categoryId]: {
@@ -112,27 +141,43 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
         },
       }));
     },
-    []
+    [isLocked]
   );
 
-  const resetCategory = useCallback((categoryId: string) => {
-    const category = DUE_DILIGENCE_CATEGORIES.find(
-      (entry) => entry.id === categoryId
-    );
-    if (!category) return;
+  const resetCategory = useCallback(
+    (categoryId: string) => {
+      if (isLocked) return;
+      const category = DUE_DILIGENCE_CATEGORIES.find(
+        (entry) => entry.id === categoryId
+      );
+      if (!category) return;
 
-    const nextCategoryState: CategoryResponses = {};
-    category.sections.forEach((section) => {
-      section.questions.forEach((question) => {
-        nextCategoryState[question.id] = "";
+      const nextCategoryState: CategoryResponses = {};
+      category.sections.forEach((section) => {
+        section.questions.forEach((question) => {
+          nextCategoryState[question.id] = "";
+        });
       });
-    });
 
-    setResponses((prev) => ({
-      ...prev,
-      [categoryId]: nextCategoryState,
-    }));
+      setResponses((prev) => ({
+        ...prev,
+        [categoryId]: nextCategoryState,
+      }));
+    },
+    [isLocked]
+  );
+
+  const lockAssessment = useCallback(() => {
+    setIsLocked(true);
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(lockStorageKey, String(isLocked));
+    } catch (error) {
+      console.error("Unable to persist submission lock", error);
+    }
+  }, [isLocked, lockStorageKey]);
 
   const getCategoryProgress = useCallback(
     (category: DueDiligenceCategory) => {
@@ -164,6 +209,8 @@ export const DueDiligenceProvider = ({ children }: { children: ReactNode }) => {
     updateResponse,
     resetCategory,
     lastSavedAt,
+    isLocked,
+    lockAssessment,
     getCategoryProgress,
   };
 
