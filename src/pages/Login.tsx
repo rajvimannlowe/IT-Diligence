@@ -37,7 +37,7 @@ const OTP_SEND_DELAY = 1500;
 const OTP_VERIFY_DELAY = 1500;
 const REDIRECT_DELAY = 1500;
 
-const VALID_EMAILS = ["emp@demo.com", "superadmin@demo.com"];
+const VALID_EMAILS = ["employee@ex.com", "superadmin@demo.com"];
 const VALID_COUNTRY_CODE = "+91";
 const VALID_PHONE_NUMBER = "9876543210"; // Format: [country code][phone number] - Must start with 6, 7, 8, or 9
 
