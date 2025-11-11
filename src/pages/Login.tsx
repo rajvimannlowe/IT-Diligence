@@ -808,7 +808,7 @@ const Login = () => {
                     Login Successful!
                   </h3>
                   <p className="text-base text-gray-600">
-                    Redirecting to your dashboard...
+                    Redirecting to your assessment...
                   </p>
                 </motion.div>
               )}
