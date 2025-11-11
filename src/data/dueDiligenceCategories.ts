@@ -156,6 +156,7 @@ export const DUE_DILIGENCE_CATEGORIES: DueDiligenceCategory[] = [
       },
     ],
   },
+  /*
   {
     id: "si-s-detail",
     label: "SI & S Detail",
@@ -197,217 +198,219 @@ export const DUE_DILIGENCE_CATEGORIES: DueDiligenceCategory[] = [
       },
     ],
   },
-  {
-    id: "data",
-    label: "Data",
-    title: "Data & Analytics",
-    description:
-      "Review how data is governed, catalogued, and activated through analytics platforms and literacy programs.",
-    sections: [
-      {
-        id: "data-governance",
-        title: "Governance",
-        questions: [
-          q(
-            "governance-model",
-            "Describe the data governance model, roles, and committees.",
-            ["Governance charter"]
-          ),
-          q("data-quality", "How is data quality measured and managed?", [
-            "Data quality KPIs",
-          ]),
-          q("master-data", "What is the approach to master data management?", [
-            "MDM documentation",
-          ]),
-        ],
-      },
-      {
-        id: "data-analytics",
-        title: "Analytics & Reporting",
-        questions: [
-          q("analytics-platforms", "Which analytics/BI platforms are in use?", [
-            "Platform inventory",
-          ]),
-          q(
-            "usage-examples",
-            "Provide examples of analytics driving business decisions.",
-            ["Use-case deck"]
-          ),
-          q("data-literacy", "How is data literacy promoted across teams?"),
-        ],
-      },
-    ],
-  },
-  {
-    id: "security-risk",
-    label: "Security & Risk",
-    title: "Security, Risk & Compliance",
-    description:
-      "Capture cyber defence posture, governance, and how technology risk and regulatory obligations are managed.",
-    sections: [
-      {
-        id: "security-posture",
-        title: "Security Posture",
-        questions: [
-          q("frameworks", "Which security frameworks/standards are followed?", [
-            "Policies, framework mappings",
-          ]),
-          q(
-            "team-structure",
-            "Describe the security organisation and reporting lines."
-          ),
-          q(
-            "recent-incidents",
-            "Summarise notable incidents or vulnerabilities in the last 12 months.",
-            ["Incident reports"]
-          ),
-        ],
-      },
-      {
-        id: "risk-compliance",
-        title: "Risk & Compliance",
-        questions: [
-          q(
-            "regulatory-obligations",
-            "List key regulatory obligations and current compliance status.",
-            ["Compliance assessments"]
-          ),
-          q(
-            "risk-management",
-            "Describe the IT risk management process, cadence, and ownership.",
-            ["Risk register"]
-          ),
-          q(
-            "third-party-risk",
-            "How are third-party/vendor risks assessed and monitored?",
-            ["Vendor risk assessments"]
-          ),
-        ],
-      },
-    ],
-  },
-  {
-    id: "cloud",
-    label: "Cloud",
-    title: "Cloud & DevOps",
-    description:
-      "Assess cloud adoption roadmaps, guardrails, and automation maturity powering continuous delivery.",
-    sections: [
-      {
-        id: "cloud-strategy",
-        title: "Cloud Strategy",
-        questions: [
-          q(
-            "cloud-roadmap",
-            "Outline the cloud adoption strategy, preferred hyperscalers, and timelines.",
-            ["Cloud strategy deck"]
-          ),
-          q(
-            "governance",
-            "Describe cloud governance (cost controls, security, provisioning).",
-            ["Cloud governance playbook"]
-          ),
-        ],
-      },
-      {
-        id: "devops",
-        title: "DevOps & Automation",
-        questions: [
-          q(
-            "toolchain",
-            "List CI/CD, infrastructure automation, and monitoring tooling.",
-            ["Toolchain inventory"]
-          ),
-          q(
-            "deployment-cadence",
-            "What is the deployment cadence and release approval workflow?"
-          ),
-        ],
-      },
-    ],
-  },
-  {
-    id: "projects",
-    label: "Projects",
-    title: "Programs & Projects",
-    description:
-      "Summarise the change portfolio, delivery governance, and how initiatives land on time, scope, and budget.",
-    sections: [
-      {
-        id: "portfolio",
-        title: "Portfolio Overview",
-        questions: [
-          q(
-            "portfolio-summary",
-            "Provide an overview of the current project/program portfolio.",
-            ["Portfolio dashboard"]
-          ),
-          q(
-            "prioritisation",
-            "Explain prioritisation, funding, and approval governance.",
-            ["Governance artifacts"]
-          ),
-        ],
-      },
-      {
-        id: "delivery-performance",
-        title: "Delivery Performance",
-        questions: [
-          q(
-            "performance-metrics",
-            "Share delivery performance metrics (on time/on budget/benefits).",
-            ["PMO reports"]
-          ),
-          q(
-            "resourcing",
-            "Describe the resourcing model (internal vs. partner mix).",
-            ["Resourcing plan"]
-          ),
-        ],
-      },
-    ],
-  },
-  {
-    id: "personnel",
-    label: "Personnel",
-    title: "People & Organisation",
-    description:
-      "Understand the structure, sourcing mix, and talent programs underpinning IT capabilities and partner ecosystems.",
-    sections: [
-      {
-        id: "organisation-structure",
-        title: "Organisation Structure",
-        questions: [
-          q(
-            "org-chart",
-            "Provide a high-level IT organisation structure highlighting key roles.",
-            ["Org chart"]
-          ),
-          q(
-            "sourcing-model",
-            "Describe the sourcing mix (FTE vs. contractors vs. partners).",
-            ["Sourcing strategy"]
-          ),
-        ],
-      },
-      {
-        id: "talent",
-        title: "Talent & Capability",
-        questions: [
-          q(
-            "skills-overview",
-            "Summarise critical IT capabilities and notable skill gaps.",
-            ["Skills inventory"]
-          ),
-          q(
-            "retention",
-            "Outline retention, succession, and engagement initiatives.",
-            ["HR metrics"]
-          ),
-        ],
-      },
-    ],
-  },
+  */
+  // {
+  //   id: "data",
+  //   label: "Data",
+  //   title: "Data & Analytics",
+  //   description:
+  //     "Review how data is governed, catalogued, and activated through analytics platforms and literacy programs.",
+  //   sections: [
+  //     {
+  //       id: "data-governance",
+  //       title: "Governance",
+  //       questions: [
+  //         q(
+  //           "governance-model",
+  //           "Describe the data governance model, roles, and committees.",
+  //           ["Governance charter"]
+  //         ),
+  //         q("data-quality", "How is data quality measured and managed?", [
+  //           "Data quality KPIs",
+  //         ]),
+  //         q("master-data", "What is the approach to master data management?", [
+  //           "MDM documentation",
+  //         ]),
+  //       ],
+  //     },
+  //     {
+  //       id: "data-analytics",
+  //       title: "Analytics & Reporting",
+  //       questions: [
+  //         q("analytics-platforms", "Which analytics/BI platforms are in use?", [
+  //           "Platform inventory",
+  //         ]),
+  //         q(
+  //           "usage-examples",
+  //           "Provide examples of analytics driving business decisions.",
+  //           ["Use-case deck"]
+  //         ),
+  //         q("data-literacy", "How is data literacy promoted across teams?"),
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "security-risk",
+  //   label: "Security & Risk",
+  //   title: "Security, Risk & Compliance",
+  //   description:
+  //     "Capture cyber defence posture, governance, and how technology risk and regulatory obligations are managed.",
+  //   sections: [
+  //     {
+  //       id: "security-posture",
+  //       title: "Security Posture",
+  //       questions: [
+  //         q("frameworks", "Which security frameworks/standards are followed?", [
+  //           "Policies, framework mappings",
+  //         ]),
+  //         q(
+  //           "team-structure",
+  //           "Describe the security organisation and reporting lines."
+  //         ),
+  //         q(
+  //           "recent-incidents",
+  //           "Summarise notable incidents or vulnerabilities in the last 12 months.",
+  //           ["Incident reports"]
+  //         ),
+  //       ],
+  //     },
+  //     {
+  //       id: "risk-compliance",
+  //       title: "Risk & Compliance",
+  //       questions: [
+  //         q(
+  //           "regulatory-obligations",
+  //           "List key regulatory obligations and current compliance status.",
+  //           ["Compliance assessments"]
+  //         ),
+  //         q(
+  //           "risk-management",
+  //           "Describe the IT risk management process, cadence, and ownership.",
+  //           ["Risk register"]
+  //         ),
+  //         q(
+  //           "third-party-risk",
+  //           "How are third-party/vendor risks assessed and monitored?",
+  //           ["Vendor risk assessments"]
+  //         ),
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "cloud",
+  //   label: "Cloud",
+  //   title: "Cloud & DevOps",
+  //   description:
+  //     "Assess cloud adoption roadmaps, guardrails, and automation maturity powering continuous delivery.",
+  //   sections: [
+  //     {
+  //       id: "cloud-strategy",
+  //       title: "Cloud Strategy",
+  //       questions: [
+  //         q(
+  //           "cloud-roadmap",
+  //           "Outline the cloud adoption strategy, preferred hyperscalers, and timelines.",
+  //           ["Cloud strategy deck"]
+  //         ),
+  //         q(
+  //           "governance",
+  //           "Describe cloud governance (cost controls, security, provisioning).",
+  //           ["Cloud governance playbook"]
+  //         ),
+  //       ],
+  //     },
+  //     {
+  //       id: "devops",
+  //       title: "DevOps & Automation",
+  //       questions: [
+  //         q(
+  //           "toolchain",
+  //           "List CI/CD, infrastructure automation, and monitoring tooling.",
+  //           ["Toolchain inventory"]
+  //         ),
+  //         q(
+  //           "deployment-cadence",
+  //           "What is the deployment cadence and release approval workflow?"
+  //         ),
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "projects",
+  //   label: "Projects",
+  //   title: "Programs & Projects",
+  //   description:
+  //     "Summarise the change portfolio, delivery governance, and how initiatives land on time, scope, and budget.",
+  //   sections: [
+  //     {
+  //       id: "portfolio",
+  //       title: "Portfolio Overview",
+  //       questions: [
+  //         q(
+  //           "portfolio-summary",
+  //           "Provide an overview of the current project/program portfolio.",
+  //           ["Portfolio dashboard"]
+  //         ),
+  //         q(
+  //           "prioritisation",
+  //           "Explain prioritisation, funding, and approval governance.",
+  //           ["Governance artifacts"]
+  //         ),
+  //       ],
+  //     },
+  //     {
+  //       id: "delivery-performance",
+  //       title: "Delivery Performance",
+  //       questions: [
+  //         q(
+  //           "performance-metrics",
+  //           "Share delivery performance metrics (on time/on budget/benefits).",
+  //           ["PMO reports"]
+  //         ),
+  //         q(
+  //           "resourcing",
+  //           "Describe the resourcing model (internal vs. partner mix).",
+  //           ["Resourcing plan"]
+  //         ),
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "personnel",
+  //   label: "Personnel",
+  //   title: "People & Organisation",
+  //   description:
+  //     "Understand the structure, sourcing mix, and talent programs underpinning IT capabilities and partner ecosystems.",
+  //   sections: [
+  //     {
+  //       id: "organisation-structure",
+  //       title: "Organisation Structure",
+  //       questions: [
+  //         q(
+  //           "org-chart",
+  //           "Provide a high-level IT organisation structure highlighting key roles.",
+  //           ["Org chart"]
+  //         ),
+  //         q(
+  //           "sourcing-model",
+  //           "Describe the sourcing mix (FTE vs. contractors vs. partners).",
+  //           ["Sourcing strategy"]
+  //         ),
+  //       ],
+  //     },
+  //     {
+  //       id: "talent",
+  //       title: "Talent & Capability",
+  //       questions: [
+  //         q(
+  //           "skills-overview",
+  //           "Summarise critical IT capabilities and notable skill gaps.",
+  //           ["Skills inventory"]
+  //         ),
+  //         q(
+  //           "retention",
+  //           "Outline retention, succession, and engagement initiatives.",
+  //           ["HR metrics"]
+  //         ),
+  //       ],
+  //     },
+  //   ],
+  // },
+  /*
   {
     id: "implications",
     label: "Implications",
@@ -447,6 +450,7 @@ export const DUE_DILIGENCE_CATEGORIES: DueDiligenceCategory[] = [
       },
     ],
   },
+  */
 ];
 
 export const DEFAULT_CATEGORY_ID = DUE_DILIGENCE_CATEGORIES[0]?.id ?? "mf-a";
