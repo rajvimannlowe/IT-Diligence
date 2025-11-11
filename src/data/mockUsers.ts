@@ -8,7 +8,7 @@ export const MOCK_USERS: User[] = [
   {
     id: "employee-1",
     name: "Priya Sharma",
-    email: "employee@demo.com",
+    email: "emp@demo.com",
     role: "employee",
     department: "Engineering",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya",
