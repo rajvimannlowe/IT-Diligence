@@ -210,7 +210,7 @@ const Assessment = () => {
                     </div>
                   </div>
                 </div>
-                {/* <Button
+                <Button
                   onClick={handleSubmitAssessment}
                   disabled={!canSubmit || hasSubmitted}
                   className={cn(
@@ -225,7 +225,7 @@ const Assessment = () => {
                     : canSubmit
                     ? "Submit assessment"
                     : "Complete all categories"}
-                </Button> */}
+                </Button>
               </div>
             </div>
           </div>
