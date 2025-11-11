@@ -135,7 +135,7 @@ const AssessmentCategory = () => {
         </Button>
       </div>
 
-      <Card className="border-none bg-transparent shadow-none">
+      <Card className="m-0 border-none bg-transparent shadow-none p-0 mb-10">
         <CardContent className="p-0">
           <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-slate-900 via-indigo-900 to-indigo-600 text-white shadow-[0_28px_50px_-25px_rgba(15,23,42,0.35)]">
             <div className="pointer-events-none absolute inset-x-10 bottom-[-80px] h-64 rounded-full bg-indigo-400/20 blur-[120px]" />
@@ -157,7 +157,6 @@ const AssessmentCategory = () => {
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-4 text-sm text-slate-100/80">
-                  <span>{completionPercent}% complete</span>
                   <span>
                     {answeredQuestions} / {totalQuestions} responses
                   </span>
@@ -177,7 +176,7 @@ const AssessmentCategory = () => {
 
       <div className="space-y-6">
         <Card className="border border-gray-200 shadow-sm">
-          <CardContent className="flex items-center gap-2 overflow-x-auto p-3">
+          <CardContent className="flex items-center gap-2 overflow-x-auto p-0">
             {category.sections.map((section) => {
               const progress = sectionProgress.find(
                 (entry) => entry.id === section.id

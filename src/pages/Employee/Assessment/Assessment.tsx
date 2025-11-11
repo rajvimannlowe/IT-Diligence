@@ -107,22 +107,15 @@ const Assessment = () => {
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-500">
-              <span>
-                {category.sections.length} section
-                {category.sections.length !== 1 ? "s" : ""}
-              </span>
+              <span>{category.sections.length} sections</span>
               <span aria-hidden="true">•</span>
-              <span>
-                {progress.total} question{progress.total !== 1 ? "s" : ""}
-              </span>
+              <span>{progress.total} questions</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-5 pt-5">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>
-                  {progress.answered} / {progress.total} responses
-                </span>
+                <span>{progress.answered} responses</span>
                 <span className="font-semibold text-gray-700">
                   {progress.percent}%
                 </span>
@@ -152,16 +145,16 @@ const Assessment = () => {
 
   return (
     <div className="space-y-5">
-      <Card className="border-none bg-transparent shadow-none">
+      <Card className="m-0 border-none bg-transparent shadow-none p-0 mb-10">
         <CardContent className="p-0">
           <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-slate-900 via-indigo-900 to-indigo-600 text-white shadow-[0_28px_50px_-25px_rgba(15,23,42,0.35)]">
             <div className="pointer-events-none absolute inset-x-10 bottom-[-80px] h-64 rounded-full bg-indigo-400/20 blur-[120px]" />
-            <div className="relative space-y-5 p-5 md:p-7">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-indigo-200">
-                <ClipboardList className="h-3.5 w-3.5" />
-                Employee assessment workspace
-              </div>
+            <div className="relative grid gap-6 p-6 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] md:p-7">
               <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-indigo-200">
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  Employee assessment workspace
+                </div>
                 <h1 className="text-3xl font-semibold leading-tight md:text-[32px]">
                   Due Diligence Assessment
                 </h1>
@@ -169,24 +162,29 @@ const Assessment = () => {
                   Quickly review what’s complete and what still needs your
                   input.
                 </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-slate-100/80">
-                  <span>{overallStats.percent}% complete</span>
-                  <span>
-                    {overallStats.answeredQuestions} /{" "}
-                    {overallStats.totalQuestions} responses
-                  </span>
-                  <span>
-                    {overallStats.totalCategories -
-                      overallStats.completedCategories}{" "}
-                    categories remaining
-                  </span>
-                </div>
                 <Progress
                   value={overallStats.percent}
-                  className="mt-1 h-2"
+                  className="mt-4 h-2"
                   trackClassName="bg-white/20"
                   indicatorClassName="bg-linear-to-r from-indigo-300 via-indigo-400 to-indigo-500"
                 />
+              </div>
+              <div className="grid gap-2 text-sm text-slate-100/80">
+                <div className="rounded-xl bg-white/10 p-3.5 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.4)] backdrop-blur">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-100/70">
+                    Snapshot
+                  </div>
+                  <div className="mt-2 space-y-1.5 text-sm">
+                    <div>
+                      {overallStats.answeredQuestions} responses captured
+                    </div>
+                    <div>
+                      {overallStats.totalCategories -
+                        overallStats.completedCategories}{" "}
+                      categories remaining
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

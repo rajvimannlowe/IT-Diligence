@@ -127,7 +127,7 @@ const Sidebar = () => {
               </div>
               <div>
                 <h2 className="font-bold text-brand-navy text-lg">
-                  ChaturVima
+                  IT Diligence
                 </h2>
                 <p className="text-xs text-gray-500">Health Diagnostics</p>
               </div>
