@@ -201,12 +201,12 @@ const Assessment = () => {
                   </div>
                   <div className="mt-2 space-y-1.5 text-sm">
                     <div>
-                      {overallStats.answeredQuestions} responses captured
+                      Responses: {overallStats.answeredQuestions} /{" "}
+                      {overallStats.totalQuestions}
                     </div>
                     <div>
-                      {overallStats.totalCategories -
-                        overallStats.completedCategories}{" "}
-                      categories remaining
+                      Categories: {overallStats.completedCategories} /{" "}
+                      {overallStats.totalCategories}
                     </div>
                   </div>
                 </div>
